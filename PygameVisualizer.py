@@ -4,11 +4,11 @@ import numpy as np
 from scipy.io import wavfile
 from time import sleep
 
-ELEMENTS = 500
+ELEMENTS = 200
 FREQUENCY_UPPER = 1500
 FREQUENCY_LOWER = 100
 SAMPLE_RATE = 44100
-AMPLITUDE = 4096
+AMPLITUDE = 4096/10
 DURATION = 0.01
 WIDTH = 1000
 HEIGHT = WIDTH//2
@@ -44,29 +44,65 @@ class Bar():
         pass
 
 # quicksort function
-def quicksort(a, l, r):
-    if l >= r:
+def quicksort(arr, left, right):
+    if left >= right:
         return
-    x = a[l]
-    j = l
-    for i in range(l + 1, r + 1):
-        if a[i] <= x:
+    x = arr[left]
+    j = left
+    for i in range(left + 1, right + 1):
+        if arr[i] <= x:
             j += 1
-            a[j], a[i] = a[i], a[j]
-        yield a,l,r,i
-    a[l], a[j] = a[j], a[l]
-    yield a,l,r,i
+            arr[j], arr[i] = arr[i], arr[j]
+        yield arr, left, right, i
+    arr[left], arr[j] = arr[j], arr[left]
+    yield arr, left, right, i
 
     # yield from statement used to yield
     # the array after dividing
-    yield from quicksort(a, l, j - 1)
-    yield from quicksort(a, j + 1, r)
+    yield from quicksort(arr, left, j - 1)
+    yield from quicksort(arr, j + 1, right)
 
+def bubbleSort(arr):
+    n = len(arr)
+    for i in range(n):
+        for j in range(0,n-i-1):
+            if arr[j] > arr[j+1]:
+                arr[j],arr[j+1] = arr[j+1],arr[j]
+            yield arr,0,n-i-1,j
+
+def insertionSort(arr):
+    n = len(arr)
+
+    for i in range(n):
+        key = arr[i]
+        j = i - 1
+        while j >= 0  and key < arr[j]:
+            arr[j+1] = arr[j]
+            j -= 1
+            yield arr,i,n,j
+        arr[j+1] = key
+
+        yield arr,i,n,j
+
+def selectionSort(arr):
+    n = len(arr)
+    for i in range(n):
+        min = i
+        for j in range(i+1,n):
+            if arr[min] > arr[j]:
+                min = j
+            yield arr,i,n,j
+
+        arr[i],arr[min] = arr[min],arr[i]
+        yield arr,i,n,j
+
+# Generate Random List
 def getList():
 
     random.seed(0)
     return [random.randint(1,HEIGHT) for _ in range(ELEMENTS)]
 
+# Maps list values to a frequency and creates .wav files
 def map_sound(lst,duration):
 
     norm_lst = [float(i)/max(lst) for i in lst]
@@ -83,6 +119,7 @@ def map_sound(lst,duration):
 
     return frequencies
 
+# Draws bars for each loop
 def draw_bars(generator,bars,screen,frequencies):
     try:
         step = next(generator)
@@ -109,8 +146,7 @@ def draw_bars(generator,bars,screen,frequencies):
         pass
 
 
-
-
+# Draws gaps will need later
 def draw_gaps(screen,gap,width):
     for i in range(ELEMENTS):
         pygame.draw.line(screen,BLACK, (i*gap,0),(i*gap,width))
@@ -131,7 +167,8 @@ def main():
         bar = Bar(color=BLACK,height=value,i=count)
         bar.draw(screen)
         bars.append(bar)
-    generator = quicksort(lst,0,len(lst)-1)
+    # generator = quicksort(lst,0,len(lst)-1)
+    generator = selectionSort(lst)
     running = True
     # Game loop
     while running:
@@ -141,6 +178,9 @@ def main():
 
         screen.fill(WHITE)
         draw_bars(generator, bars, screen,frequencies)
+
+    pygame.quit()
+
 
 
 
