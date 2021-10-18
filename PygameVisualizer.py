@@ -73,6 +73,32 @@ class Button:
     def get_height(self):
         return self.height
 
+class menu:
+
+     def draw_menu(self,screen,n,text,text_rect):
+         if n == 1:
+             x = int(WIDTH // 2 - 0.25*WIDTH)
+             y = int(HEIGHT // 2 - 0.25*WIDTH)
+             box_width = WIDTH//2
+             box_height = HEIGHT//2
+             pygame.draw.rect(screen,GRAY,(x,y,box_width,box_height))
+
+         box_width = int(WIDTH * 1 / 3)
+         box_height = int((0.9 * HEIGHT)//n)
+         for i in range(n):
+
+            # Checking if drawing left or right column
+            if i % 2 != 0:
+                x = int(WIDTH // 2 - 0.25 * WIDTH)
+            else:
+                x = int(WIDTH // 2 + 0.25 * WIDTH - box_width)
+
+                y = HEIGHT // 10
+                pygame.draw.rect(screen,GRAY,(x,y,box_width,box_height))
+
+
+
+
 
 # quicksort function
 def quicksort(arr, left, right):
@@ -197,7 +223,7 @@ def displaySortingAlgorithm(screen,alg):
         bar.draw(screen)
         bars.append(bar)
     # generator = quicksort(lst,0,len(lst)-1)
-    generator = selectionSort(lst)
+    generator = alg(lst)
     running = True
     # Game loop
     while running:
@@ -248,6 +274,7 @@ def sortingAlgorithmsMenu(screen,font):
         button_text.append([text,text_rect])
 
 
+
     # start_time = pygame.time.get_ticks()
 
 
@@ -264,27 +291,36 @@ def sortingAlgorithmsMenu(screen,font):
 
 
         mouse = pygame.mouse.get_pos()
-        print(f"Mouse: {mouse},X Bounds: {buttons[0].get_x()}-{buttons[0].get_x()+buttons[0].get_x()+buttons[0].get_width()} Y Bounds: {buttons[0].get_y()}-{buttons[0].get_y()+buttons[0].get_width()}")
         for event in pygame.event.get():
             if event == pygame.QUIT:
                 running = False
             if event == pygame.MOUSEBUTTONDOWN:
-                if buttons[0].get_x() < mouse[0] < buttons[0].get_x() + button.get_width():
-                    if buttons[1].get_y() < mouse[1] < buttons[1].get_y() + buttons[1].get_height():
+                if buttons[0].get_x() < mouse[0] < buttons[0].get_x() + box_width:
+                    if buttons[1].get_y() < mouse[1] < buttons[1].get_y() + box_height:
+                        print("Send it ")
                         displaySortingAlgorithm(screen,bubbleSort)
                 # for alg,button in zip(sorting_alg_list,buttons):
                 #     if button.get_x() < mouse[0] < button.get_x()+button.get_width():
                 #         if button.get_y() < mouse[1] < button.get_y()+button.get_height():
                 #             displaySortingAlgorithm(screen,alg)
 
-        for button in buttons:
-            if button.get_x() < mouse[0] < button.get_x() + button.get_width():
-                if button.get_y() < mouse[1] < button.get_y() + button.get_height():
-                    button.set_color(DIM_GRAY)
-                    button.draw_button(screen)
-            else:
-                button.set_color(GRAY)
-                button.draw_button(screen)
+        # for button in buttons:
+        #     if button.get_x() < mouse[0] < button.get_x() + box_width:
+        #         print(mouse[1])
+        #         print(button.get_y(),button.get_y() + box_height)
+        #         if button.get_y() < mouse[1] < button.get_y() + box_height:
+        #             button.set_color(DIM_GRAY)
+        #             button.draw_button(screen)
+        #     else:
+        #         button.set_color(GRAY)
+        #         button.draw_button(screen)
+        if buttons[0].get_x() < mouse[0] < buttons[0].get_x() + box_width:
+            if buttons[0].get_y() < mouse[1] < buttons[0].get_y() + box_height:
+                buttons[0].set_color(DIM_GRAY)
+                buttons[0].draw_button(screen)
+        else:
+            buttons[0].set_color(GRAY)
+            buttons[0].draw_button(screen)
 
         for text in button_text:
             screen.blit(text[0],text[1])
@@ -331,11 +367,11 @@ def main_menu():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if button1_bounds[0][0] < mouse[0] < button1_bounds[0][1]:
                     if button1_bounds[1][0] < mouse[1] < button1_bounds[1][1]:
-                        running = sortingAlgorithmsMenu(screen,font)
+                       sortingAlgorithmsMenu(screen,font)
 
                 elif button2_bounds[0][0] < mouse[0] < button2_bounds[0][1]:
                     if button2_bounds[1][0] < mouse[1] < button2_bounds[1][1]:
-                        running = pathfindingAlgorithmMenu(screen,font)
+                        pathfindingAlgorithmMenu(screen,font)
 
         if button1_bounds[0][0] < mouse[0] < button1_bounds[0][1] and button1_bounds[1][0] < mouse[1] < button1_bounds[1][1]:
             pygame.draw.rect(screen, DIM_GRAY, (300, 75, 400, 150))
