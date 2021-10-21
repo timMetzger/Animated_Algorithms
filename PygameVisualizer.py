@@ -3,6 +3,7 @@ import pygame
 import numpy as np
 from scipy.io import wavfile
 from time import sleep
+import sorting_algorithms
 
 ELEMENTS = 200
 FREQUENCY_UPPER = 1500
@@ -139,77 +140,6 @@ class Menu:
             if pygame.mouse.get_pressed(3)[0]:
                 if button.x < mouse_x < button.x + button.width and button.y < mouse_y < button.y + button.height:
                     button.run(screen,button.alg)
-
-# quicksort function
-def quick_sort(arr, left=None, right=None):
-
-    if right is None:
-        right = len(arr)-1
-    if left is None:
-        left = 0
-
-
-    if left >= right:
-        return
-    x = arr[left]
-    j = left
-    for i in range(left + 1, right + 1):
-        if arr[i] <= x:
-            j += 1
-            arr[j], arr[i] = arr[i], arr[j]
-        yield arr, left, right, i
-    arr[left], arr[j] = arr[j], arr[left]
-    yield arr, left, right, i
-
-    # yield from statement used to yield
-    # the array after dividing
-    yield from quick_sort(arr, left, j - 1)
-    yield from quick_sort(arr, j + 1, right)
-
-
-def bubble_sort(arr):
-    n = len(arr)
-    for i in range(n):
-        for j in range(0, n - i - 1):
-            if arr[j] > arr[j + 1]:
-                arr[j], arr[j + 1] = arr[j + 1], arr[j]
-            yield arr, 0, n - i - 1, j
-
-
-def insertion_sort(arr):
-    n = len(arr)
-
-    for i in range(n):
-        key = arr[i]
-        j = i - 1
-        while j >= 0 and key < arr[j]:
-            arr[j + 1] = arr[j]
-            j -= 1
-            yield arr, i, n, j
-        arr[j + 1] = key
-
-        yield arr, i, n, j
-
-
-def selection_sort(arr):
-    n = len(arr)
-    for i in range(n):
-        min = i
-        for j in range(i + 1, n):
-            if arr[min] > arr[j]:
-                min = j
-            yield arr, i, n, j
-
-        arr[i], arr[min] = arr[min], arr[i]
-        yield arr, i, n, j
-
-def heap_sort(arr):
-    pass
-
-def merge_sort(arr):
-    pass
-
-
 # Generate Random List
 def getList():
     random.seed(0)
@@ -303,7 +233,7 @@ def sortingAlgorithmsMenu(screen):
 
     sorting_menu = Menu()
     button_labels = ["Quick Sort","Heap Sort","Bubble Sort","Selection Sort","Insertion Sort","Merge Sort"]
-    button_functions = [quick_sort,heap_sort,bubble_sort,selection_sort,insertion_sort,merge_sort]
+    button_functions = [sorting_algorithms.quick_sort,sorting_algorithms.heap_sort,sorting_algorithms.bubble_sort,sorting_algorithms.selection_sort,sorting_algorithms.insertion_sort,sorting_algorithms.merge_sort]
     sorting_menu.create_menu(6,button_labels,button_functions)
 
     running = True
