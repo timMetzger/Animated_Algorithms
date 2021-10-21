@@ -3,7 +3,6 @@ import pygame
 import numpy as np
 from scipy.io import wavfile
 from time import sleep
-import sys
 
 ELEMENTS = 200
 FREQUENCY_UPPER = 1500
@@ -46,19 +45,40 @@ class Bar:
     def get_color(self):
         pass
 
+
 class Button:
 
-    def __init__(self,height,width,x,y):
+    def __init__(self, height, width, x, y,label,func):
         self.height = height
         self.width = width
         self.x = x
         self.y = y
         self.color = GRAY
+        self.label = label
+        self.font = pygame.font.Font('fonts/RobotoSlab-ExtraBold.ttf', 32)
+        self.alg = func
+        self.run = displaySortingAlgorithm
 
-    def draw_button(self,screen):
-        pygame.draw.rect(screen,GRAY,(self.x,self.y,self.width,self.height))
+    def draw_button(self, screen):
+        mouse = pygame.mouse.get_pos()
+        mouse_x = mouse[0]
+        mouse_y = mouse[1]
 
-    def set_color(self,color):
+        if self.x < mouse_x < self.x + self.width and self.y < mouse_y < self.y + self.height:
+            pygame.draw.rect(screen, DIM_GRAY, (self.x, self.y, self.width, self.height))
+        else:
+            pygame.draw.rect(screen, GRAY, (self.x, self.y, self.width, self.height))
+
+        button_text = self.font.render(self.label,True,BLACK,None)
+        button_text_rect = button_text.get_rect()
+        button_text_rect.center = (self.x+self.width//2,self.y+self.height//2)
+        screen.blit(button_text,button_text_rect)
+
+
+    def run(self,screen):
+        self.run(screen,self.alg)
+
+    def set_color(self, color):
         self.color = color
 
     def get_x(self):
@@ -73,35 +93,62 @@ class Button:
     def get_height(self):
         return self.height
 
-class menu:
 
-     def draw_menu(self,screen,n,text,text_rect):
-         if n == 1:
-             x = int(WIDTH // 2 - 0.25*WIDTH)
-             y = int(HEIGHT // 2 - 0.25*WIDTH)
-             box_width = WIDTH//2
-             box_height = HEIGHT//2
-             pygame.draw.rect(screen,GRAY,(x,y,box_width,box_height))
+class Menu:
+    def __init__(self):
+        self.menu_buttons = []
 
-         box_width = int(WIDTH * 1 / 3)
-         box_height = int((0.9 * HEIGHT)//n)
-         for i in range(n):
+    def create_menu(self, n, text, func):
+        if n == 1:
+            x = int(WIDTH // 2 - 0.25 * WIDTH)
+            y = int(HEIGHT // 2 - 0.25 * WIDTH)
 
+            box_width = WIDTH // 2
+            box_height = HEIGHT // 2
+            button1 = Button(box_height, box_width, x, y,text[0],func[0])
+            self.menu_buttons.append(button1)
+
+        box_width = int(WIDTH * 1 / 3)
+        box_height = int((0.9 * HEIGHT) // n)
+        gap = 25
+        y = gap
+
+        for i in range(0, n, 2):
             # Checking if drawing left or right column
-            if i % 2 != 0:
-                x = int(WIDTH // 2 - 0.25 * WIDTH)
-            else:
-                x = int(WIDTH // 2 + 0.25 * WIDTH - box_width)
+            left_x = int(WIDTH // 2 - gap - box_width)
+            right_x = int(WIDTH // 2 + gap)
 
-                y = HEIGHT // 10
-                pygame.draw.rect(screen,GRAY,(x,y,box_width,box_height))
+            button1 = Button(box_height, box_width, left_x, y,text[i-1],func[i-1])
+            button2 = Button(box_height, box_width, right_x, y,text[i],func[i])
 
+            self.menu_buttons.append(button1)
+            self.menu_buttons.append(button2)
 
+            y += box_height + gap
 
+    def draw_menu(self,screen):
+        for button in self.menu_buttons:
+            button.draw_button(screen)
 
+    def menu_selection(self,screen):
+        mouse_pos = pygame.mouse.get_pos()
+        mouse_x = mouse_pos[0]
+        mouse_y = mouse_pos[1]
+
+        for button in self.menu_buttons:
+            if pygame.mouse.get_pressed(3)[0]:
+                if button.x < mouse_x < button.x + button.width and button.y < mouse_y < button.y + button.height:
+                    button.run(screen,button.alg)
 
 # quicksort function
-def quicksort(arr, left, right):
+def quick_sort(arr, left=None, right=None):
+
+    if right is None:
+        right = len(arr)-1
+    if left is None:
+        left = 0
+
+
     if left >= right:
         return
     x = arr[left]
@@ -116,11 +163,11 @@ def quicksort(arr, left, right):
 
     # yield from statement used to yield
     # the array after dividing
-    yield from quicksort(arr, left, j - 1)
-    yield from quicksort(arr, j + 1, right)
+    yield from quick_sort(arr, left, j - 1)
+    yield from quick_sort(arr, j + 1, right)
 
 
-def bubbleSort(arr):
+def bubble_sort(arr):
     n = len(arr)
     for i in range(n):
         for j in range(0, n - i - 1):
@@ -129,7 +176,7 @@ def bubbleSort(arr):
             yield arr, 0, n - i - 1, j
 
 
-def insertionSort(arr):
+def insertion_sort(arr):
     n = len(arr)
 
     for i in range(n):
@@ -144,7 +191,7 @@ def insertionSort(arr):
         yield arr, i, n, j
 
 
-def selectionSort(arr):
+def selection_sort(arr):
     n = len(arr)
     for i in range(n):
         min = i
@@ -155,6 +202,12 @@ def selectionSort(arr):
 
         arr[i], arr[min] = arr[min], arr[i]
         yield arr, i, n, j
+
+def heap_sort(arr):
+    pass
+
+def merge_sort(arr):
+    pass
 
 
 # Generate Random List
@@ -213,7 +266,9 @@ def draw_gaps(screen, gap, width):
         pygame.draw.line(screen, BLACK, (i * gap, 0), (i * gap, width))
 
 
-def displaySortingAlgorithm(screen,alg):
+def displaySortingAlgorithm(screen, alg):
+    print(alg.__name__)
+
     screen.fill(AQUA)
     lst = getList()
     frequencies = map_sound(lst, DURATION)
@@ -234,106 +289,39 @@ def displaySortingAlgorithm(screen,alg):
         screen.fill(WHITE)
         draw_bars(generator, bars, screen, frequencies)
 
+
 def displayPathfindingAlgorithm(screen):
     pass
+
 
 def pathfindingAlgorithms(screen):
     pass
 
 
-def sortingAlgorithmsMenu(screen,font):
-    sorting_alg_list = ["bubbleSortMenu,selectionSort","insertionSort",'quickSort','mergeSort','heapSort','bucketSort']
-
-    rows = 3
-    columns = 2
-    padding = 100
-
-    button_padding = 50
-    box_width = 250
-    box_height = 100
-
-    button_labels = ["Bubble Sort","Selection Sort","Insertion Sort","Quick Sort","Merge Sort","Heap Sort","Bucket Sort"]
-
-    button_y = (HEIGHT - 2 * padding) // rows - box_height // 2
-    buttons = []
-    for i in range(rows):
-        button_x = (WIDTH - 2 * padding) // columns - box_width // 2
-
-        for j in range(columns):
-                buttons.append(Button(box_height,box_width,button_x,button_y))
-                button_x += box_width+button_padding
-        button_y += box_height+button_padding
-
-    button_text = []
-    for text,button in zip(button_labels,buttons):
-        button.draw_button(screen)
-
-        text = font.render(text,True,BLACK,None)
-        text_rect = text.get_rect()
-        text_rect.center = (button.get_x()+button.get_width()//2,button.get_y()+button.get_height()//2)
-        button_text.append([text,text_rect])
+def sortingAlgorithmsMenu(screen):
 
 
+    sorting_menu = Menu()
+    button_labels = ["Quick Sort","Heap Sort","Bubble Sort","Selection Sort","Insertion Sort","Merge Sort"]
+    button_functions = [quick_sort,heap_sort,bubble_sort,selection_sort,insertion_sort,merge_sort]
+    sorting_menu.create_menu(6,button_labels,button_functions)
 
-    # start_time = pygame.time.get_ticks()
-
-
-    mouse = pygame.mouse.get_pos()
     running = True
     while running:
-        # current_time = pygame.time.get_ticks()
-        # delta_t = (current_time-start_time)//2
-        # counter_text = font.render(str(delta_t),True,BLACK,None)
-        # counter_text_rect = counter_text.get_rect()
-        # counter_text_rect.center = (25, 25)
         screen.fill(AQUA)
-        # screen.blit(counter_text,counter_text_rect)
-
-
-        mouse = pygame.mouse.get_pos()
+        sorting_menu.draw_menu(screen)
+        sorting_menu.menu_selection(screen)
         for event in pygame.event.get():
-            if event == pygame.QUIT:
+            if event.type == pygame.QUIT:
                 running = False
-            if event == pygame.MOUSEBUTTONDOWN:
-                if buttons[0].get_x() < mouse[0] < buttons[0].get_x() + box_width:
-                    if buttons[1].get_y() < mouse[1] < buttons[1].get_y() + box_height:
-                        print("Send it ")
-                        displaySortingAlgorithm(screen,bubbleSort)
-                # for alg,button in zip(sorting_alg_list,buttons):
-                #     if button.get_x() < mouse[0] < button.get_x()+button.get_width():
-                #         if button.get_y() < mouse[1] < button.get_y()+button.get_height():
-                #             displaySortingAlgorithm(screen,alg)
 
-        # for button in buttons:
-        #     if button.get_x() < mouse[0] < button.get_x() + box_width:
-        #         print(mouse[1])
-        #         print(button.get_y(),button.get_y() + box_height)
-        #         if button.get_y() < mouse[1] < button.get_y() + box_height:
-        #             button.set_color(DIM_GRAY)
-        #             button.draw_button(screen)
-        #     else:
-        #         button.set_color(GRAY)
-        #         button.draw_button(screen)
-        if buttons[0].get_x() < mouse[0] < buttons[0].get_x() + box_width:
-            if buttons[0].get_y() < mouse[1] < buttons[0].get_y() + box_height:
-                buttons[0].set_color(DIM_GRAY)
-                buttons[0].draw_button(screen)
-        else:
-            buttons[0].set_color(GRAY)
-            buttons[0].draw_button(screen)
-
-        for text in button_text:
-            screen.blit(text[0],text[1])
-
-
-
+        sleep(DURATION)
         pygame.display.update()
-    pygame.quit()
 
 
-
-def pathfindingAlgorithmMenu(screen,font):
+def pathfindingAlgorithmMenu(screen):
     pass
+
 
 def main_menu():
     pygame.init()
@@ -351,7 +339,6 @@ def main_menu():
     sorting_text_rect = sorting_text.get_rect()
     sorting_text_rect.center = (500, 150)
 
-
     pathfinding_text = font.render('Pathfinding Algorithms', True, BLACK, None)
     pathfinding_text_rect = pathfinding_text.get_rect()
     pathfinding_text_rect.center = (500, 350)
@@ -367,19 +354,20 @@ def main_menu():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if button1_bounds[0][0] < mouse[0] < button1_bounds[0][1]:
                     if button1_bounds[1][0] < mouse[1] < button1_bounds[1][1]:
-                       sortingAlgorithmsMenu(screen,font)
+                        sortingAlgorithmsMenu(screen)
 
                 elif button2_bounds[0][0] < mouse[0] < button2_bounds[0][1]:
                     if button2_bounds[1][0] < mouse[1] < button2_bounds[1][1]:
-                        pathfindingAlgorithmMenu(screen,font)
+                        pathfindingAlgorithmMenu(screen)
 
-        if button1_bounds[0][0] < mouse[0] < button1_bounds[0][1] and button1_bounds[1][0] < mouse[1] < button1_bounds[1][1]:
+        if button1_bounds[0][0] < mouse[0] < button1_bounds[0][1] and button1_bounds[1][0] < mouse[1] < \
+                button1_bounds[1][1]:
             pygame.draw.rect(screen, DIM_GRAY, (300, 75, 400, 150))
         else:
             pygame.draw.rect(screen, GRAY, (300, 75, 400, 150))
 
-
-        if button2_bounds[0][0] < mouse[0] < button2_bounds[0][1] and button2_bounds[1][0] < mouse[1] < button2_bounds[1][1]:
+        if button2_bounds[0][0] < mouse[0] < button2_bounds[0][1] and button2_bounds[1][0] < mouse[1] < \
+                button2_bounds[1][1]:
             pygame.draw.rect(screen, DIM_GRAY, (300, 275, 400, 150))
         else:
             pygame.draw.rect(screen, GRAY, (300, 275, 400, 150))
