@@ -164,11 +164,9 @@ class Menu:
         mouse_pos = pygame.mouse.get_pos()
         mouse_x = mouse_pos[0]
         mouse_y = mouse_pos[1]
-
         for button in self.menu_buttons:
-            if pygame.mouse.get_pressed(3)[0]:
-                if button.x < mouse_x < button.x + button.width and button.y < mouse_y < button.y + button.height:
-                    button.next_menu(screen)
+            if button.x < mouse_x < button.x + button.width and button.y < mouse_y < button.y + button.height:
+                button.next_menu(screen)
 
 
 
@@ -262,8 +260,6 @@ def pathfindingAlgorithms(screen):
 
 
 def sortingAlgorithmsMenu(screen):
-    sleep(0.05)
-
     sorting_menu = Menu()
     button_labels = ["Quick Sort","Heap Sort","Bubble Sort","Selection Sort","Insertion Sort","Merge Sort"]
     button_functions = [sorting_algorithms.quick_sort,sorting_algorithms.heap_sort,sorting_algorithms.bubble_sort,sorting_algorithms.selection_sort,sorting_algorithms.insertion_sort,sorting_algorithms.merge_sort]
@@ -273,17 +269,18 @@ def sortingAlgorithmsMenu(screen):
     while running:
         screen.fill(AQUA)
         sorting_menu.draw_menu(screen)
-        sorting_menu.menu_selection(screen)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                sorting_menu.menu_selection(screen)
 
         sleep(DURATION)
         pygame.display.update()
 
 
 def pathfindingAlgorithmMenu(screen):
-    sleep(0.05)
     pathfinding_menu = Menu()
     button_labels = ["A-Star","Breadth First","Depth First","Dijkstra"]
     button_functions = [pathfinding_algorithms.a_star,pathfinding_algorithms.breadth_first,pathfinding_algorithms.depth_first,pathfinding_algorithms.dijkstra]
@@ -293,12 +290,12 @@ def pathfindingAlgorithmMenu(screen):
     while running:
         screen.fill(AQUA)
         pathfinding_menu.draw_menu(screen)
-        pathfinding_menu.menu_selection(screen)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pathfinding_menu.menu_selection(screen)
 
-        sleep(DURATION)
         pygame.display.update()
 
 
@@ -321,11 +318,13 @@ def main_menu():
     while running:
         screen.fill(AQUA)
         main_menu.draw_menu(screen)
-        main_menu.menu_selection(screen)
+
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                main_menu.menu_selection(screen)
 
 
         pygame.display.update()
