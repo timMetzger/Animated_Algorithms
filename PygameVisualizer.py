@@ -13,7 +13,7 @@ SAMPLE_RATE = 44100
 AMPLITUDE = 4096 / 10
 DURATION = 0.01
 WIDTH = 1000
-HEIGHT = WIDTH // 2
+HEIGHT = WIDTH
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLACK = (0, 0, 0)
@@ -47,35 +47,57 @@ class Bar:
     def get_color(self):
         pass
 
+
 class Box:
     """Creates and update the boxs for pathfinding algorithms"""
-    def __init__(self,x,y,width,height):
+
+    def __init__(self, x, y, width, height):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
         self.color = WHITE
+        self.value = 1
 
-    def draw_box(self,screen):
-        pygame.draw.rect(screen,self.color, (self.x, self.y, self.width, self.height))
+    def draw_box(self, screen):
+        pygame.draw.rect(screen, self.color, (self.x, self.y, self.width, self.height))
 
-    def update(self,screen):
-        mouse = pygame.mouse.get_pos()
-        mouse_x = mouse[0]
-        mouse_y = mouse[1]
-        mouse_buttons = pygame.mouse.get_pressed(3)
+    def draw_bounds(self, event, boxs):
 
+        mouse_x = event.pos[0]
+        mouse_y = event.pos[1]
+
+        flat_list = [item.color for row in boxs for item in row]
+        print(flat_list.count(BLACK))
         if self.x < mouse_x < self.x + self.width and self.y < mouse_y < self.y + self.height:
-            if mouse_buttons[0]:
-                self.color = GREEN
-            elif mouse_buttons[1]:
-                self.color = RED
-            elif mouse_buttons[2]:
-                self.color = BLACK
+            if event.button == 1:
+                if flat_list.count(GREEN) == 0:
+                    self.color = GREEN
+
+                elif self.color == GREEN:
+                    self.color = WHITE
+                    self.value = 1
+
+            elif event.button == 3:
+                if flat_list.count(RED) == 0:
+                    self.color = RED
+
+                elif self.color == RED:
+                    self.color = WHITE
+                    self.value = 1
+
+            elif event.button == 2:
+                if self.color == BLACK:
+                    self.color = WHITE
+                    self.value = 1
+                else:
+                    self.color = BLACK
+                    self.value = 0
+
 
 class Button:
 
-    def __init__(self, height, width, x, y,label, next_screen, alg = None):
+    def __init__(self, height, width, x, y, label, next_screen, alg=None):
         self.height = height
         self.width = width
         self.x = x
@@ -96,18 +118,17 @@ class Button:
         else:
             pygame.draw.rect(screen, GRAY, (self.x, self.y, self.width, self.height))
 
-        button_text = self.font.render(self.label,True,BLACK,None)
+        button_text = self.font.render(self.label, True, BLACK, None)
         button_text_rect = button_text.get_rect()
-        button_text_rect.center = (self.x+self.width//2,self.y+self.height//2)
-        screen.blit(button_text,button_text_rect)
+        button_text_rect.center = (self.x + self.width // 2, self.y + self.height // 2)
+        screen.blit(button_text, button_text_rect)
 
-
-    def next_menu(self,screen):
+    def next_menu(self, screen):
         if self.alg is None:
             self.next_screen(screen)
         else:
             print(self.next_screen.__name__)
-            self.next_screen(screen,self.alg)
+            self.next_screen(screen, self.alg)
 
     def set_color(self, color):
         self.color = color
@@ -124,11 +145,31 @@ class Button:
     def get_height(self):
         return self.height
 
+class Text:
+    def __init__(self,x,y,size,text,color = BLACK):
+        self.x = x
+        self.y = y
+        self.color = color
+        self.text = text
+        self.size = size
+        self.font = pygame.font.Font('fonts/RobotoSlab-ExtraBold.ttf', self.size)
+        self.text_object = None
+        self.text_object_rect = None
+
+    def create_text(self):
+        self.text_object = self.font.render(self.text,True,self.color,None)
+        self.text_object_rect = self.text_object.get_rect()
+        self.text_object_rect.center = (self.x,self.y)
+
+
+    def draw_text(self,screen):
+        screen.blit(self.text_object, self.text_object_rect)
+
 class Menu:
     def __init__(self):
         self.menu_buttons = []
 
-    def create_menu(self, n, text, algs,func = None):
+    def create_menu(self, n, text, algs, func=None):
         if n == 1:
             x = int(WIDTH // 2 - 0.25 * WIDTH)
             y = int(HEIGHT // 2 - 0.25 * WIDTH)
@@ -148,27 +189,25 @@ class Menu:
             left_x = int(WIDTH // 2 - gap - box_width)
             right_x = int(WIDTH // 2 + gap)
 
-            button1 = Button(box_height, box_width, left_x, y, text[i-1], alg = algs[i - 1],next_screen= func)
-            button2 = Button(box_height, box_width, right_x, y, text[i], alg = algs[i],next_screen= func)
+            button1 = Button(box_height, box_width, left_x, y, text[i - 1], alg=algs[i - 1], next_screen=func)
+            button2 = Button(box_height, box_width, right_x, y, text[i], alg=algs[i], next_screen=func)
 
             self.menu_buttons.append(button1)
             self.menu_buttons.append(button2)
 
             y += box_height + gap
 
-    def draw_menu(self,screen):
+    def draw_menu(self, screen):
         for button in self.menu_buttons:
             button.draw_button(screen)
 
-    def menu_selection(self,screen):
+    def menu_selection(self, screen):
         mouse_pos = pygame.mouse.get_pos()
         mouse_x = mouse_pos[0]
         mouse_y = mouse_pos[1]
         for button in self.menu_buttons:
             if button.x < mouse_x < button.x + button.width and button.y < mouse_y < button.y + button.height:
                 button.next_menu(screen)
-
-
 
 
 # Generate Random List
@@ -215,25 +254,25 @@ def draw_bars(generator, bars, screen, frequencies):
             bar.draw(screen)
             pygame.mixer.Sound(f'tones/{frequencies[height]}.wav').play()
 
-        pygame.display.update()
+
         sleep(DURATION)
     except StopIteration:
         pass
 
 
-# Draws gaps will need later
-def draw_gaps(screen, gap, width):
-    for i in range(ELEMENTS):
-        pygame.draw.line(screen, BLACK, (i * gap, 0), (i * gap, width))
-
 # Need to blit algorithm name to screen; create a back button, a timer, maybe log for comparison of algs
 def displaySortingAlgorithm(screen, alg):
-    print(alg.__name__)
+
+    alg_name = Text(WIDTH//2,20,32,alg.__name__.upper())
+    alg_name.create_text()
+
+
 
     screen.fill(AQUA)
     lst = getList()
     frequencies = map_sound(lst, DURATION)
     bars = []
+
     for count, value in enumerate(lst):
         bar = Bar(color=BLACK, height=value, i=count)
         bar.draw(screen)
@@ -242,28 +281,64 @@ def displaySortingAlgorithm(screen, alg):
     generator = alg(lst)
     running = True
     # Game loop
+    start = pygame.time.get_ticks()
+
     while running:
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
 
         screen.fill(WHITE)
         draw_bars(generator, bars, screen, frequencies)
+        alg_name.draw_text(screen)
+
+        end = pygame.time.get_ticks()
+        delta_t = end-start
+        timer_text = Text(int(0.9 * WIDTH), 20, 32, str(delta_t/1000)+" s")
+        timer_text.create_text()
+        timer_text.draw_text(screen)
+
+        pygame.display.update()
 
 
-def displayPathfindingAlgorithm(screen):
-    pass
+def displayPathfindingAlgorithm(screen, alg):
+
+    boxs = []
+    box_width = 20
+    box_height = 20
+    for y in range(3, HEIGHT, 25):
+        row = []
+        for x in range(3, WIDTH, 25):
+            row.append(Box(x=x, y=y, width=box_width, height=box_height))
+        boxs.append(row)
 
 
-def pathfindingAlgorithms(screen):
-    pass
+    running = True
+    while running:
+        screen.fill(AQUA)
+        for row in boxs:
+            for col in row:
+                col.draw_box(screen)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for row in boxs:
+                    for col in row:
+                        col.draw_bounds(event, boxs)
+
+        pygame.display.update()
 
 
 def sortingAlgorithmsMenu(screen):
     sorting_menu = Menu()
-    button_labels = ["Quick Sort","Heap Sort","Bubble Sort","Selection Sort","Insertion Sort","Merge Sort"]
-    button_functions = [sorting_algorithms.quick_sort,sorting_algorithms.heap_sort,sorting_algorithms.bubble_sort,sorting_algorithms.selection_sort,sorting_algorithms.insertion_sort,sorting_algorithms.merge_sort]
-    sorting_menu.create_menu(6,button_labels,button_functions,displaySortingAlgorithm)
+    button_labels = ["Quick Sort", "Heap Sort", "Bubble Sort", "Selection Sort", "Insertion Sort", "Merge Sort"]
+    button_functions = [sorting_algorithms.quick_sort, sorting_algorithms.heap_sort, sorting_algorithms.bubble_sort,
+                        sorting_algorithms.selection_sort, sorting_algorithms.insertion_sort,
+                        sorting_algorithms.merge_sort]
+    sorting_menu.create_menu(6, button_labels, button_functions, displaySortingAlgorithm)
 
     running = True
     while running:
@@ -282,9 +357,10 @@ def sortingAlgorithmsMenu(screen):
 
 def pathfindingAlgorithmMenu(screen):
     pathfinding_menu = Menu()
-    button_labels = ["A-Star","Breadth First","Depth First","Dijkstra"]
-    button_functions = [pathfinding_algorithms.a_star,pathfinding_algorithms.breadth_first,pathfinding_algorithms.depth_first,pathfinding_algorithms.dijkstra]
-    pathfinding_menu.create_menu(4, button_labels,button_functions,displayPathfindingAlgorithm)
+    button_labels = ["A-Star", "Breadth First", "Depth First", "Dijkstra"]
+    button_functions = [pathfinding_algorithms.a_star, pathfinding_algorithms.breadth_first,
+                        pathfinding_algorithms.depth_first, pathfinding_algorithms.dijkstra]
+    pathfinding_menu.create_menu(4, button_labels, button_functions, displayPathfindingAlgorithm)
 
     running = True
     while running:
@@ -306,26 +382,23 @@ def main_menu():
     pygame.display.set_caption("Algorithm Visualizer")
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
-
-    main_menu = Menu()
-    button_labels = ["Pathfinding","Sorting"]
-    button_functions = [pathfindingAlgorithmMenu,sortingAlgorithmsMenu]
-    main_menu.create_menu(2,button_labels,button_functions)
-    main_menu.menu_buttons[0].next_menu = sortingAlgorithmsMenu
-    main_menu.menu_buttons[1].next_menu = pathfindingAlgorithmMenu
+    menu = Menu()
+    button_labels = ["Pathfinding", "Sorting"]
+    button_functions = [pathfindingAlgorithmMenu, sortingAlgorithmsMenu]
+    menu.create_menu(2, button_labels, button_functions)
+    menu.menu_buttons[0].next_menu = sortingAlgorithmsMenu
+    menu.menu_buttons[1].next_menu = pathfindingAlgorithmMenu
 
     running = True
     while running:
         screen.fill(AQUA)
-        main_menu.draw_menu(screen)
-
+        menu.draw_menu(screen)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                main_menu.menu_selection(screen)
-
+                menu.menu_selection(screen)
 
         pygame.display.update()
 
