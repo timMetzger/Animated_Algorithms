@@ -5,6 +5,7 @@ from scipy.io import wavfile
 from time import sleep
 import sorting_algorithms
 import pathfinding_algorithms
+from collections import defaultdict
 
 ELEMENTS = 200
 FREQUENCY_UPPER = 1500
@@ -21,8 +22,15 @@ AQUA = (50, 80, 99)
 GREEN = (0, 255, 0)
 GRAY = (169, 169, 169)
 DIM_GRAY = (105, 105, 105)
+PINK = (219,112,147)
+YELLOW = (204,204,0)
 GAP = WIDTH // ELEMENTS
 
+class Graph:
+    def __init__(self):
+        self.graph = defaultdict(list)
+    def addEdge(self,u,v):
+        self.graph[u].append(v)
 
 class Bar:
     def __init__(self, height, color, i):
@@ -47,17 +55,16 @@ class Bar:
     def get_color(self):
         pass
 
-
 class Box:
     """Creates and update the boxs for pathfinding algorithms"""
 
-    def __init__(self, x, y, width, height):
+    def __init__(self, x, y, width, height,value):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
         self.color = WHITE
-        self.value = 1
+        self.value = value
 
     def draw_box(self, screen):
         pygame.draw.rect(screen, self.color, (self.x, self.y, self.width, self.height))
@@ -68,7 +75,6 @@ class Box:
         mouse_y = event.pos[1]
 
         flat_list = [item.color for row in boxs for item in row]
-        print(flat_list.count(BLACK))
         if self.x < mouse_x < self.x + self.width and self.y < mouse_y < self.y + self.height:
             if event.button == 1:
                 if flat_list.count(GREEN) == 0:
@@ -76,7 +82,6 @@ class Box:
 
                 elif self.color == GREEN:
                     self.color = WHITE
-                    self.value = 1
 
             elif event.button == 3:
                 if flat_list.count(RED) == 0:
@@ -84,16 +89,14 @@ class Box:
 
                 elif self.color == RED:
                     self.color = WHITE
-                    self.value = 1
+
 
             elif event.button == 2:
                 if self.color == BLACK:
                     self.color = WHITE
-                    self.value = 1
+
                 else:
                     self.color = BLACK
-                    self.value = 0
-
 
 class Button:
 
@@ -209,12 +212,41 @@ class Menu:
             if button.x < mouse_x < button.x + button.width and button.y < mouse_y < button.y + button.height:
                 button.next_menu(screen)
 
+class Generator:
+    def __init__(self, gen):
+        self.gen = gen
+
+    def __iter__(self):
+        self.value = yield from self.gen
 
 # Generate Random List
 def getList():
     random.seed(0)
     return [random.randint(1, HEIGHT) for _ in range(ELEMENTS)]
 
+def build_adj_list(lyst):
+    """Builds the adjacency list for use in pathfinding algorithms"""
+    graph = Graph()
+    rows = len(lyst)
+    cols = len(lyst[0])
+    for i in range(rows-1):
+        for j in range(cols-1):
+            if lyst[i][j].color == BLACK:
+                continue
+            if j - 1 >= 0:
+                if lyst[i][j-1].color != BLACK:
+                    graph.addEdge(lyst[i][j].value,lyst[i][j-1].value)
+            if j + 1 <= cols:
+                if lyst[i][j + 1].color != BLACK:
+                    graph.addEdge(lyst[i][j].value, lyst[i][j+1].value)
+            if i - 1 >= 0:
+                if lyst[i-1][j].color != BLACK:
+                    graph.addEdge(lyst[i][j].value, lyst[i-1][j].value)
+            if i + 1 <= rows:
+                if lyst[i+1][j].color != BLACK:
+                    graph.addEdge(lyst[i][j].value, lyst[i+1][j].value)
+
+    return graph.graph
 
 # Maps list values to a frequency and creates .wav files
 def map_sound(lst, duration):
@@ -301,20 +333,44 @@ def displaySortingAlgorithm(screen, alg):
 
         pygame.display.update()
 
+def draw_pathfinding(generator,screen,boxs):
+
+    for i in generator:
+        if boxs[i].color == GREEN or boxs[i].color == RED:
+            continue
+        else:
+            boxs[i].color = PINK
+            boxs[i].draw_box(screen)
+            pygame.display.update()
+            sleep(DURATION)
+
+    for i in generator.value:
+        if boxs[i].color == GREEN or boxs[i].color == RED:
+            continue
+        else:
+            boxs[i].color = YELLOW
+            boxs[i].draw_box(screen)
+            pygame.display.update()
+            sleep(DURATION)
+
+    return True
 
 def displayPathfindingAlgorithm(screen, alg):
 
     boxs = []
     box_width = 20
     box_height = 20
+    counter = 0
     for y in range(3, HEIGHT, 25):
         row = []
         for x in range(3, WIDTH, 25):
-            row.append(Box(x=x, y=y, width=box_width, height=box_height))
+            row.append(Box(x=x, y=y, width=box_width, height=box_height,value=counter))
+            counter += 1
         boxs.append(row)
 
-
     running = True
+    start = False
+    path_displayed = False
     while running:
         screen.fill(AQUA)
         for row in boxs:
@@ -328,6 +384,26 @@ def displayPathfindingAlgorithm(screen, alg):
                 for row in boxs:
                     for col in row:
                         col.draw_bounds(event, boxs)
+            if event.type == pygame.KEYDOWN and event.key == 13 and start is False:
+                start = None
+                end = None
+                for row in range(len(boxs)):
+                    if start is not None and end is not None:
+                        break
+                    for col in range(len(boxs[0])):
+                        if boxs[row][col].color == GREEN:
+                            start = boxs[row][col].value
+                        elif boxs[row][col].color == RED:
+                            end = boxs[row][col].value
+
+
+                lyst = build_adj_list(boxs)
+                gen = Generator(gen = alg(lyst,start,end))
+                flattened_box_list = [item for row in boxs for item in row]
+                start = True
+
+        if start is True and path_displayed is False:
+            path_displayed = draw_pathfinding(gen,screen,flattened_box_list)
 
         pygame.display.update()
 
