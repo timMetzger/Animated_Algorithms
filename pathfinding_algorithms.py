@@ -1,8 +1,8 @@
-def a_star(arr,start,end):
+def a_star(arr, start, end):
     pass
 
-def breadth_first(graph, start, end):
 
+def breadth_first(graph, start, end):
     queue = [[start]]
     visited = set()
 
@@ -13,7 +13,7 @@ def breadth_first(graph, start, end):
         if vertex == end:
             return path
         elif vertex not in visited:
-            for current in graph.get(vertex,[]):
+            for current in graph.get(vertex, []):
                 new_path = list(path)
                 new_path.append(current)
                 queue.append(new_path)
@@ -21,8 +21,25 @@ def breadth_first(graph, start, end):
             visited.add(vertex)
             yield vertex
 
-def depth_first(arr,start,end):
-    pass
 
-def dijkstra(arr,start,end):
+def depth_first(graph, start, end):
+    stack = [(start, [start])]
+    visited = set()
+
+    while stack:
+        (vertex, path) = stack.pop()
+        if vertex not in visited:
+            if vertex == end:
+                return path
+            visited.add(vertex)
+            yield vertex
+            for neighbor in graph[vertex]:
+                stack.append((neighbor, path + [neighbor]))
+
+
+def dijkstra(graph, start, end, weighted=None):
+    size = len(graph)
+
+
+def min_distance(dist, sptSet):
     pass

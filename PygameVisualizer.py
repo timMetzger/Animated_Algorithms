@@ -22,15 +22,18 @@ AQUA = (50, 80, 99)
 GREEN = (0, 255, 0)
 GRAY = (169, 169, 169)
 DIM_GRAY = (105, 105, 105)
-PINK = (219,112,147)
-YELLOW = (204,204,0)
+PINK = (219, 112, 147)
+YELLOW = (204, 204, 0)
 GAP = WIDTH // ELEMENTS
+
 
 class Graph:
     def __init__(self):
         self.graph = defaultdict(list)
-    def addEdge(self,u,v):
+
+    def addEdge(self, u, v):
         self.graph[u].append(v)
+
 
 class Bar:
     def __init__(self, height, color, i):
@@ -55,10 +58,11 @@ class Bar:
     def get_color(self):
         pass
 
+
 class Box:
     """Creates and update the boxs for pathfinding algorithms"""
 
-    def __init__(self, x, y, width, height,value):
+    def __init__(self, x, y, width, height, value):
         self.x = x
         self.y = y
         self.width = width
@@ -97,6 +101,7 @@ class Box:
 
                 else:
                     self.color = BLACK
+
 
 class Button:
 
@@ -148,8 +153,9 @@ class Button:
     def get_height(self):
         return self.height
 
+
 class Text:
-    def __init__(self,x,y,size,text,color = BLACK):
+    def __init__(self, x, y, size, text, color=BLACK):
         self.x = x
         self.y = y
         self.color = color
@@ -160,13 +166,13 @@ class Text:
         self.text_object_rect = None
 
     def create_text(self):
-        self.text_object = self.font.render(self.text,True,self.color,None)
+        self.text_object = self.font.render(self.text, True, self.color, None)
         self.text_object_rect = self.text_object.get_rect()
-        self.text_object_rect.center = (self.x,self.y)
+        self.text_object_rect.center = (self.x, self.y)
 
-
-    def draw_text(self,screen):
+    def draw_text(self, screen):
         screen.blit(self.text_object, self.text_object_rect)
+
 
 class Menu:
     def __init__(self):
@@ -212,6 +218,7 @@ class Menu:
             if button.x < mouse_x < button.x + button.width and button.y < mouse_y < button.y + button.height:
                 button.next_menu(screen)
 
+
 class Generator:
     def __init__(self, gen):
         self.gen = gen
@@ -219,34 +226,37 @@ class Generator:
     def __iter__(self):
         self.value = yield from self.gen
 
+
 # Generate Random List
 def getList():
     random.seed(0)
     return [random.randint(1, HEIGHT) for _ in range(ELEMENTS)]
+
 
 def build_adj_list(lyst):
     """Builds the adjacency list for use in pathfinding algorithms"""
     graph = Graph()
     rows = len(lyst)
     cols = len(lyst[0])
-    for i in range(rows-1):
-        for j in range(cols-1):
+    for i in range(rows - 1):
+        for j in range(cols - 1):
             if lyst[i][j].color == BLACK:
                 continue
             if j - 1 >= 0:
-                if lyst[i][j-1].color != BLACK:
-                    graph.addEdge(lyst[i][j].value,lyst[i][j-1].value)
+                if lyst[i][j - 1].color != BLACK:
+                    graph.addEdge(lyst[i][j].value, lyst[i][j - 1].value)
             if j + 1 <= cols:
                 if lyst[i][j + 1].color != BLACK:
-                    graph.addEdge(lyst[i][j].value, lyst[i][j+1].value)
+                    graph.addEdge(lyst[i][j].value, lyst[i][j + 1].value)
             if i - 1 >= 0:
-                if lyst[i-1][j].color != BLACK:
-                    graph.addEdge(lyst[i][j].value, lyst[i-1][j].value)
+                if lyst[i - 1][j].color != BLACK:
+                    graph.addEdge(lyst[i][j].value, lyst[i - 1][j].value)
             if i + 1 <= rows:
-                if lyst[i+1][j].color != BLACK:
-                    graph.addEdge(lyst[i][j].value, lyst[i+1][j].value)
+                if lyst[i + 1][j].color != BLACK:
+                    graph.addEdge(lyst[i][j].value, lyst[i + 1][j].value)
 
     return graph.graph
+
 
 # Maps list values to a frequency and creates .wav files
 def map_sound(lst, duration):
@@ -286,7 +296,6 @@ def draw_bars(generator, bars, screen, frequencies):
             bar.draw(screen)
             pygame.mixer.Sound(f'tones/{frequencies[height]}.wav').play()
 
-
         sleep(DURATION)
     except StopIteration:
         pass
@@ -294,11 +303,8 @@ def draw_bars(generator, bars, screen, frequencies):
 
 # Need to blit algorithm name to screen; create a back button, a timer, maybe log for comparison of algs
 def displaySortingAlgorithm(screen, alg):
-
-    alg_name = Text(WIDTH//2,20,32,alg.__name__.upper())
+    alg_name = Text(WIDTH // 2, 20, 32, alg.__name__.upper())
     alg_name.create_text()
-
-
 
     screen.fill(AQUA)
     lst = getList()
@@ -326,15 +332,15 @@ def displaySortingAlgorithm(screen, alg):
         alg_name.draw_text(screen)
 
         end = pygame.time.get_ticks()
-        delta_t = end-start
-        timer_text = Text(int(0.9 * WIDTH), 20, 32, str(delta_t/1000)+" s")
+        delta_t = end - start
+        timer_text = Text(int(0.9 * WIDTH), 20, 32, str(delta_t / 1000) + " s")
         timer_text.create_text()
         timer_text.draw_text(screen)
 
         pygame.display.update()
 
-def draw_pathfinding(generator,screen,boxs):
 
+def draw_pathfinding(generator, screen, boxs):
     for i in generator:
         if boxs[i].color == GREEN or boxs[i].color == RED:
             continue
@@ -355,8 +361,8 @@ def draw_pathfinding(generator,screen,boxs):
 
     return True
 
-def displayPathfindingAlgorithm(screen, alg):
 
+def displayPathfindingAlgorithm(screen, alg):
     boxs = []
     box_width = 20
     box_height = 20
@@ -364,9 +370,12 @@ def displayPathfindingAlgorithm(screen, alg):
     for y in range(3, HEIGHT, 25):
         row = []
         for x in range(3, WIDTH, 25):
-            row.append(Box(x=x, y=y, width=box_width, height=box_height,value=counter))
+            row.append(Box(x=x, y=y, width=box_width, height=box_height, value=counter))
             counter += 1
         boxs.append(row)
+
+    gen = None
+    flattened_box_list = None
 
     running = True
     start = False
@@ -396,14 +405,13 @@ def displayPathfindingAlgorithm(screen, alg):
                         elif boxs[row][col].color == RED:
                             end = boxs[row][col].value
 
-
                 lyst = build_adj_list(boxs)
-                gen = Generator(gen = alg(lyst,start,end))
+                gen = Generator(gen=alg(lyst, start, end))
                 flattened_box_list = [item for row in boxs for item in row]
                 start = True
 
         if start is True and path_displayed is False:
-            path_displayed = draw_pathfinding(gen,screen,flattened_box_list)
+            path_displayed = draw_pathfinding(gen, screen, flattened_box_list)
 
         pygame.display.update()
 
