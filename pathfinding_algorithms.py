@@ -1,5 +1,8 @@
-def a_star(arr, start, end):
-    pass
+def a_star(arr, start, end)
+
+    # Heuristic function
+    def manhattan_distance():
+        return abs(current_x - end_x) + abs(current_y - end_y)
 
 
 def breadth_first(graph, start, end):
@@ -38,8 +41,36 @@ def depth_first(graph, start, end):
 
 
 def dijkstra(graph, start, end, weighted=None):
-    size = len(graph)
+
+    dist = [float('inf') for _ in range(len(graph)-1)]
+    path = {}
+    dist[start] = 0
+
+    current = start
+
+    while current != end:
+        if weighted is None:
+            weight = 1
+            # graph[current] -> a list of adjacent node
+            for neighbor in graph[current]:
+                if weight + dist[current] < dist[current]:
+                    dist[current] = weight + dist[current]
+                    path[neighbor] = current
+                    hold = neighbor
+                index = graph[neighbor].index(current)
+                del graph[neighbor][index]
+            del dist[current]
+            print(neighbor)
+            current = neighbor
+        else:
+            return "Not yet implemented"
+
+    print(path)
 
 
-def min_distance(dist, sptSet):
+
+
+
+
+def min_distance():
     pass
