@@ -21,7 +21,14 @@ def a_star(graph, start, end, positions, weights=False):
     
     while open_set:
         # Next node is minimum f-score node in open_set
-        next_node = min(fScore,key = fScore.get)
+        min_node = 0
+        min = fScore[0]
+        for node in open_set:
+            if fScore[node] < min:
+                min_node = node
+                min = fScore[node]
+
+        next_node = min_node
 
 
         if next_node == end:

@@ -135,7 +135,6 @@ class Button:
         if self.alg is None:
             self.next_screen(screen)
         else:
-            print(self.next_screen.__name__)
             self.next_screen(screen, self.alg)
 
     def set_color(self, color):
