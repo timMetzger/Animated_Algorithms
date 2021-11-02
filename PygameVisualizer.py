@@ -24,6 +24,7 @@ GRAY = (169, 169, 169)
 DIM_GRAY = (105, 105, 105)
 PINK = (219, 112, 147)
 YELLOW = (204, 204, 0)
+DARK_BLUE = (25, 25, 112)
 GAP = WIDTH // ELEMENTS
 
 
@@ -32,7 +33,15 @@ class Graph:
         self.graph = defaultdict(list)
 
     def addEdge(self, u, v):
+
         self.graph[u].append(v)
+
+class Weighted_Graph:
+    def __init__(self):
+        self.graph = defaultdict(dict)
+
+    def addEdge(self, u, v, weight = 1):
+        self.graph[u][v] = weight
 
 
 class Bar:
@@ -62,45 +71,60 @@ class Bar:
 class Box:
     """Creates and update the boxs for pathfinding algorithms"""
 
-    def __init__(self, x, y, width, height, value):
+    def __init__(self, x, y, width, height, value,weight = 1):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
         self.color = WHITE
         self.value = value
+        self.weight = weight
 
     def draw_box(self, screen):
         pygame.draw.rect(screen, self.color, (self.x, self.y, self.width, self.height))
 
     def draw_bounds(self, event, boxs):
-
-        mouse_x = event.pos[0]
-        mouse_y = event.pos[1]
-
         flat_list = [item.color for row in boxs for item in row]
-        if self.x < mouse_x < self.x + self.width and self.y < mouse_y < self.y + self.height:
-            if event.button == 1:
-                if flat_list.count(GREEN) == 0:
-                    self.color = GREEN
 
-                elif self.color == GREEN:
-                    self.color = WHITE
+        # Left,Middle,Right Click Handling
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_x = event.pos[0]
+            mouse_y = event.pos[1]
+            if self.x < mouse_x < self.x + self.width and self.y < mouse_y < self.y + self.height:
+                if event.button == 1:
+                    if flat_list.count(GREEN) == 0:
+                        self.color = GREEN
 
-            elif event.button == 3:
-                if flat_list.count(RED) == 0:
-                    self.color = RED
+                    elif self.color == GREEN:
+                        self.color = WHITE
 
-                elif self.color == RED:
-                    self.color = WHITE
+                elif event.button == 3:
+                    if flat_list.count(RED) == 0:
+                        self.color = RED
+
+                    elif self.color == RED:
+                        self.color = WHITE
 
 
-            elif event.button == 2:
-                if self.color == BLACK:
-                    self.color = WHITE
+                elif event.button == 2:
+                    if self.color == BLACK:
+                        self.color = WHITE
 
-                else:
-                    self.color = BLACK
+                    else:
+                        self.color = BLACK
+
+        # Add weights to the graph
+        elif event.type == pygame.KEYDOWN:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            if self.x < mouse_x < self.x + self.width and self.y < mouse_y < self.y + self.height:
+                if event.key == 119:
+                    if self.color == DARK_BLUE:
+                        self.color = WHITE
+                        self.weight = 1
+
+                    else:
+                        self.color = DARK_BLUE
+                        self.weight = 5
 
 
 class Button:
@@ -232,27 +256,69 @@ def getList():
     return [random.randint(1, HEIGHT) for _ in range(ELEMENTS)]
 
 
-def build_adj_list(lyst):
+def build_adj_list(lyst, weighted = False):
     """Builds the adjacency list for use in pathfinding algorithms"""
-    graph = Graph()
+
     rows = len(lyst)
     cols = len(lyst[0])
-    for i in range(rows - 1):
-        for j in range(cols - 1):
-            if lyst[i][j].color == BLACK:
-                continue
-            if j - 1 >= 0:
-                if lyst[i][j - 1].color != BLACK:
-                    graph.addEdge(lyst[i][j].value, lyst[i][j - 1].value)
-            if j + 1 <= cols:
-                if lyst[i][j + 1].color != BLACK:
-                    graph.addEdge(lyst[i][j].value, lyst[i][j + 1].value)
-            if i - 1 >= 0:
-                if lyst[i - 1][j].color != BLACK:
-                    graph.addEdge(lyst[i][j].value, lyst[i - 1][j].value)
-            if i + 1 <= rows:
-                if lyst[i + 1][j].color != BLACK:
-                    graph.addEdge(lyst[i][j].value, lyst[i + 1][j].value)
+
+    if weighted:
+        graph = Weighted_Graph()
+
+        for i in range(rows - 1):
+            for j in range(cols - 1):
+                if lyst[i][j].color == BLACK:
+                    continue
+                if j - 1 >= 0:
+                    if lyst[i][j - 1].color != BLACK and lyst[i][j - 1].color != DARK_BLUE:
+                        graph.addEdge(lyst[i][j].value, lyst[i][j - 1].value)
+                    elif lyst[i][j - 1].color == DARK_BLUE:
+                        graph.addEdge(lyst[i][j].value, lyst[i][j - 1].value,lyst[i][j - 1].weight)
+
+                if j + 1 <= cols:
+                    if lyst[i][j + 1].color != BLACK and lyst[i][j + 1].color != DARK_BLUE:
+                        graph.addEdge(lyst[i][j].value, lyst[i][j + 1].value)
+                    elif lyst[i][j + 1].color == DARK_BLUE:
+                        graph.addEdge(lyst[i][j].value, lyst[i][j + 1].value, lyst[i][j + 1].weight)
+
+
+                if i - 1 >= 0:
+                    if lyst[i - 1][j].color != BLACK and lyst[i - 1][j].color != DARK_BLUE:
+                        graph.addEdge(lyst[i][j].value, lyst[i - 1][j].value)
+                    elif lyst[i - 1][j].color == DARK_BLUE:
+                        graph.addEdge(lyst[i][j].value, lyst[i - 1][j].value, lyst[i - 1][j].weight)
+
+
+                if i + 1 <= rows:
+                    if lyst[i + 1][j].color != BLACK and lyst[i + 1][j].color != DARK_BLUE:
+                        graph.addEdge(lyst[i][j].value, lyst[i + 1][j].value)
+                    elif lyst[i + 1][j].color == DARK_BLUE:
+                        graph.addEdge(lyst[i][j].value, lyst[i + 1][j].value, lyst[i + 1][j].weight)
+
+    else:
+        graph = Graph()
+
+        for i in range(rows - 1):
+            for j in range(cols - 1):
+                if lyst[i][j].color == BLACK:
+                    continue
+                if j - 1 >= 0:
+                    if lyst[i][j - 1].color != BLACK and lyst[i][j - 1].color != DARK_BLUE:
+                        graph.addEdge(lyst[i][j].value, lyst[i][j - 1].value)
+                if j + 1 <= cols:
+                    if lyst[i][j + 1].color != BLACK and lyst[i][j + 1].color != DARK_BLUE:
+                        graph.addEdge(lyst[i][j].value, lyst[i][j + 1].value)
+
+
+                if i - 1 >= 0:
+                    if lyst[i - 1][j].color != BLACK and lyst[i - 1][j].color != DARK_BLUE:
+                        graph.addEdge(lyst[i][j].value, lyst[i - 1][j].value)
+
+
+                if i + 1 <= rows:
+                    if lyst[i + 1][j].color != BLACK and lyst[i + 1][j].color != DARK_BLUE:
+                        graph.addEdge(lyst[i][j].value, lyst[i + 1][j].value)
+
 
     return graph.graph
 
@@ -373,12 +439,15 @@ def displayPathfindingAlgorithm(screen, alg):
             counter += 1
         boxs.append(row)
 
+    weighted_algorithms = ['a_star','dijkstra']
+
     gen = None
     flattened_box_list = None
-
     running = True
     start = False
     path_displayed = False
+    weighted = False
+
     while running:
         screen.fill(AQUA)
         for row in boxs:
@@ -388,10 +457,14 @@ def displayPathfindingAlgorithm(screen, alg):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
+
+            # Handle drawing of start,end,and bounds
+            if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.KEYDOWN:
                 for row in boxs:
                     for col in row:
                         col.draw_bounds(event, boxs)
+
+            # Start algorithm
             if event.type == pygame.KEYDOWN and event.key == 13 and start is False:
                 start = None
                 end = None
@@ -404,13 +477,19 @@ def displayPathfindingAlgorithm(screen, alg):
                         elif boxs[row][col].color == RED:
                             end = boxs[row][col].value
 
-                lyst = build_adj_list(boxs)
+
+                if alg.__name__ in weighted_algorithms:
+                    lyst = build_adj_list(boxs,weighted=True)
+                    weighted = True
+                else:
+                    lyst = build_adj_list(boxs)
+
                 if alg.__name__ == 'a_star':
                     box_positions = []
                     for row in boxs:
                         for box in row:
-                            box_positions.append((box.x,box.y))
-                    gen = Generator(gen=alg(lyst,start,end,box_positions))
+                            box_positions.append((box.x, box.y))
+                    gen = Generator(gen=alg(lyst, start, end, box_positions,weighted))
                 else:
                     gen = Generator(gen=alg(lyst, start, end))
                 flattened_box_list = [item for row in boxs for item in row]

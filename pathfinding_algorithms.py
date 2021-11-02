@@ -139,5 +139,3 @@ def manhattan_distance(current, destination):
     return abs(current[0] - destination[0]) + abs(current[1] - destination[1])
 
 
-def min_distance():
-    pass
