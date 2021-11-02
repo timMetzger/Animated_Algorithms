@@ -406,7 +406,14 @@ def displayPathfindingAlgorithm(screen, alg):
                             end = boxs[row][col].value
 
                 lyst = build_adj_list(boxs)
-                gen = Generator(gen=alg(lyst, start, end))
+                if alg.__name__ == 'a_star':
+                    box_positions = []
+                    for row in boxs:
+                        for box in row:
+                            box_positions.append((box.x,box.y))
+                    gen = Generator(gen=alg(lyst,start,end,box_positions))
+                else:
+                    gen = Generator(gen=alg(lyst, start, end))
                 flattened_box_list = [item for row in boxs for item in row]
                 start = True
 
