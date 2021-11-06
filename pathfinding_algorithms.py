@@ -1,3 +1,6 @@
+from random import choice
+BLACK = (0, 0, 0)
+
 def a_star(graph, start, end, positions):
     # f = g + n
     # g is the actual cost of traversal from start node to current node
@@ -55,7 +58,6 @@ def breadth_first(graph, start, end):
             return path
         elif vertex not in visited:
             for current in graph.get(vertex, []):
-                print(current)
                 new_path = list(path)
                 new_path.append(current)
                 queue.append(new_path)
@@ -97,7 +99,6 @@ def dijkstra(graph, start, end):
     for _ in range(size):
 
         current = minimum_distance(size, dist, sptSet)
-        print(current, graph[current])
 
         if current == end:
             break
@@ -112,6 +113,69 @@ def dijkstra(graph, start, end):
                 parents[neighbor] = current
 
     return path_as_list(start, end, parents)
+
+def depth_first_maze(boxs):
+
+    rows = len(boxs)
+    cols = len(boxs[0])
+    stack = []
+    stack.append(boxs[1][1])
+    visited = []
+    for i in range(rows):
+        row = []
+        for j in range(cols):
+            row.append(False)
+        visited.append(row)
+
+
+    while stack:
+        current = stack.pop()
+        i,j = get_indices(boxs,current)
+        print(i,j)
+
+        neighbors = []
+
+        # Left neighbor
+        if i - 1 >= 0:
+            neighbors.append(boxs[i-1][j])
+            visited[i-1][j] = True
+
+        # Right neighbor
+        if i + 1 <= rows:
+            neighbors.append(boxs[i+1][j])
+            visited[i + 1][j] = True
+
+        # Top neighbor
+        if j + 1 <= cols:
+            neighbors.append(boxs[i][j+1])
+            visited[i][j + 1] = True
+
+        if j - 1 >= 0:
+            neighbors.append(boxs[i][j-1])
+            visited[i][j - 1] = True
+
+
+
+        chosen_one = choice(neighbors)
+        chosen_one.color = BLACK
+        i,j = get_indices(boxs, chosen_one)
+        visited[i][j] = True
+        stack.append(chosen_one)
+
+        yield boxs
+    return "Jobs Done!"
+
+
+
+
+
+def get_indices(boxs, current):
+    rows = len(boxs)
+    cols = len(boxs[0])
+    for i in range(rows):
+        for j in range(cols):
+            if boxs[i][j] is current:
+                return i,j
 
 
 def path_as_list(start, end, data):

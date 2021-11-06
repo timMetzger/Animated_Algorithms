@@ -439,12 +439,21 @@ def displayPathfindingAlgorithm(screen, alg):
     running = True
     start = False
     path_displayed = False
+    maze_building = False
 
     while running:
         screen.fill(AQUA)
         for row in boxs:
             for col in row:
                 col.draw_box(screen)
+
+        if maze_building:
+            for step in maze_generator:
+                for row in step:
+                    for col in row:
+                        col.draw_box(screen)
+
+            maze_building = False
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -457,6 +466,10 @@ def displayPathfindingAlgorithm(screen, alg):
                 for row in boxs:
                     for col in row:
                         col.draw_bounds(event, boxs)
+            # Build maze when 'p' is pressed
+            if event.type == pygame.KEYDOWN and event.key == 112 and maze_building is False:
+                maze_generator = Generator(pathfinding_algorithms.depth_first_maze(boxs))
+                maze_building = True
 
             # Start algorithm
             if event.type == pygame.KEYDOWN and event.key == 13 and start is False:
