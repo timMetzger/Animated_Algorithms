@@ -1,9 +1,10 @@
-def a_star(graph, start, end, positions, weights=False):
+def a_star(graph, start, end, positions):
     # f = g + n
     # g is the actual cost of traversal from start node to current node
     # h is the actual cost from the current node to goal node i.e as the crow flies or other methods
-    if not weights:
-        graph = add_weights(graph)
+
+    # This implementation of A* is not ideal since diagonal movement does not exist so it often does not give the
+    # optimal path as the heuristic value is too influential
 
 
 
@@ -18,38 +19,30 @@ def a_star(graph, start, end, positions, weights=False):
     next_node = start
 
     open_set = {start}
-    
+
     while open_set:
-        # Next node is minimum f-score node in open_set
-        min_node = 0
-        min = fScore[0]
-        for node in open_set:
-            if fScore[node] < min:
-                min_node = node
-                min = fScore[node]
 
-        next_node = min_node
+        # Selecting the node with the lowest fScore
+        current = min(fScore,key=fScore.get)
 
+        if current == end:
+            return path_as_list(start,end,parents)
+        yield current
 
-        if next_node == end:
-            return path_as_list(start, end, parents)
+        open_set.remove(current)
 
-        open_set.remove(next_node)
+        for neighbor in graph[current].keys():
 
-        for neighbor in graph[next_node]:
-            # Marking visited nodes by removing them and then choosing the shortest distance node
-            temp_g_score = graph[next_node][neighbor] + gScore[next_node]
-            if temp_g_score < gScore[neighbor]:
+            temp_gscore = gScore[current] + graph[current][neighbor]
+            if temp_gscore < gScore[neighbor]:
+                parents[neighbor] = current
+                gScore[neighbor] = temp_gscore
 
-                parents[neighbor] = next_node
-                gScore[neighbor] = temp_g_score
-                
                 neighbor_pos = positions[neighbor]
-                fScore[neighbor] = gScore[neighbor] + manhattan_distance(neighbor_pos, end_pos)
+                fScore[neighbor] = gScore[neighbor] + manhattan_distance(neighbor_pos,end_pos)
+
                 if neighbor not in open_set:
                     open_set.add(neighbor)
-
-        yield next_node
 
 
 
@@ -65,13 +58,13 @@ def breadth_first(graph, start, end):
             return path
         elif vertex not in visited:
             for current in graph.get(vertex, []):
+                print(current)
                 new_path = list(path)
                 new_path.append(current)
                 queue.append(new_path)
 
             visited.add(vertex)
             yield vertex
-
 
 def depth_first(graph, start, end):
     stack = [(start, [start])]
@@ -88,28 +81,40 @@ def depth_first(graph, start, end):
                 stack.append((neighbor, path + [neighbor]))
 
 
-def dijkstra(graph, start, end, weights=False):
+def dijkstra(graph, start, end):
     # Without weights this is essentially a complicated BFS
-    if not weights:
-        graph = add_weights(graph)
 
-    costs = {node: float('inf') for node in graph.keys()}
-    costs[start] = 0
+
+    size = len(graph)
+
+
+    # Traversal Distance
+    dist = [float('inf') for _ in range(size)]
+    dist[start] = 0
+
+    # Shortest Path Tree
+    sptSet = [False for _ in range(size)]
+
+    # List to read back path
     parents = {}
-    next_node = start
 
-    while next_node != end:
-        for neighbor in graph[next_node]:
-            # Marking visited nodes by removing them and then choosing the shortest distance node
-            if graph[next_node][neighbor] + costs[next_node] < costs[neighbor]:
-                costs[neighbor] = graph[next_node][neighbor] + costs[next_node]
-                parents[neighbor] = next_node
-            del graph[neighbor][next_node]
-        del costs[next_node]
-        yield next_node
-        next_node = min(costs, key=costs.get)
+    for _ in range(size):
 
-    return path_as_list(start, end, parents)
+        current = minimum_distance(size,dist,sptSet)
+        print(current,graph[current])
+
+        if current == end:
+            break
+        yield current
+
+        sptSet[current] = True
+
+        for neighbor in graph[current].keys():
+            if graph[current][neighbor] > 0 and sptSet[neighbor] is False and dist[neighbor] > dist[current] + graph[current][neighbor]:
+                dist[neighbor] = dist[current] + graph[current][neighbor]
+                parents[neighbor] = current
+
+    return path_as_list(start,end,parents)
 
 
 def path_as_list(start, end, data):
@@ -125,15 +130,15 @@ def path_as_list(start, end, data):
         path.append(backpath[-i - 1])
     return path
 
+def minimum_distance(size,dist,sptSet):
+    min = float('inf')
+    min_index = 0
+    for u in range(size):
+        if dist[u] < min and sptSet[u] is False:
+            min = dist[u]
+            min_index = u
 
-def add_weights(graph):
-    # If weights not given then each has traversal costs 1 point
-    # Changing graph to form {node:{adj_node:value,adj_node:value,adj_node:value}}
-    for node, adj_nodes in graph.items():
-        graph[node] = {adj_node_key: 1 for adj_node_key in adj_nodes}
-
-    return graph
-
+    return min_index
 
 def manhattan_distance(current, destination):
     return abs(current[0] - destination[0]) + abs(current[1] - destination[1])

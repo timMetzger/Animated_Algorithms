@@ -23,24 +23,18 @@ GREEN = (0, 255, 0)
 GRAY = (169, 169, 169)
 DIM_GRAY = (105, 105, 105)
 PINK = (219, 112, 147)
+DARK_PINK = (199, 21, 133)
 YELLOW = (204, 204, 0)
 DARK_BLUE = (25, 25, 112)
 GAP = WIDTH // ELEMENTS
 
 
-class Graph:
-    def __init__(self):
-        self.graph = defaultdict(list)
-
-    def addEdge(self, u, v):
-
-        self.graph[u].append(v)
 
 class Weighted_Graph:
     def __init__(self):
         self.graph = defaultdict(dict)
 
-    def addEdge(self, u, v, weight = 1):
+    def addEdge(self, u, v, weight=1):
         self.graph[u][v] = weight
 
 
@@ -71,7 +65,7 @@ class Bar:
 class Box:
     """Creates and update the boxs for pathfinding algorithms"""
 
-    def __init__(self, x, y, width, height, value,weight = 1):
+    def __init__(self, x, y, width, height, value, weight=1):
         self.x = x
         self.y = y
         self.width = width
@@ -256,69 +250,41 @@ def getList():
     return [random.randint(1, HEIGHT) for _ in range(ELEMENTS)]
 
 
-def build_adj_list(lyst, weighted = False):
+def build_adj_list(lyst):
     """Builds the adjacency list for use in pathfinding algorithms"""
 
     rows = len(lyst)
     cols = len(lyst[0])
 
-    if weighted:
-        graph = Weighted_Graph()
+    graph = Weighted_Graph()
 
-        for i in range(rows - 1):
-            for j in range(cols - 1):
-                if lyst[i][j].color == BLACK:
-                    continue
-                if j - 1 >= 0:
-                    if lyst[i][j - 1].color != BLACK and lyst[i][j - 1].color != DARK_BLUE:
-                        graph.addEdge(lyst[i][j].value, lyst[i][j - 1].value)
-                    elif lyst[i][j - 1].color == DARK_BLUE:
-                        graph.addEdge(lyst[i][j].value, lyst[i][j - 1].value,lyst[i][j - 1].weight)
+    for i in range(rows - 1):
+        for j in range(cols - 1):
+            if lyst[i][j].color == BLACK:
+                continue
+            if j - 1 >= 0:
+                if lyst[i][j - 1].color != BLACK and lyst[i][j - 1].color != DARK_BLUE:
+                    graph.addEdge(lyst[i][j].value, lyst[i][j - 1].value)
+                elif lyst[i][j - 1].color == DARK_BLUE:
+                    graph.addEdge(lyst[i][j].value, lyst[i][j - 1].value, lyst[i][j - 1].weight)
 
-                if j + 1 <= cols:
-                    if lyst[i][j + 1].color != BLACK and lyst[i][j + 1].color != DARK_BLUE:
-                        graph.addEdge(lyst[i][j].value, lyst[i][j + 1].value)
-                    elif lyst[i][j + 1].color == DARK_BLUE:
-                        graph.addEdge(lyst[i][j].value, lyst[i][j + 1].value, lyst[i][j + 1].weight)
+            if j + 1 <= cols:
+                if lyst[i][j + 1].color != BLACK and lyst[i][j + 1].color != DARK_BLUE:
+                    graph.addEdge(lyst[i][j].value, lyst[i][j + 1].value)
+                elif lyst[i][j + 1].color == DARK_BLUE:
+                    graph.addEdge(lyst[i][j].value, lyst[i][j + 1].value, lyst[i][j + 1].weight)
 
+            if i - 1 >= 0:
+                if lyst[i - 1][j].color != BLACK and lyst[i - 1][j].color != DARK_BLUE:
+                    graph.addEdge(lyst[i][j].value, lyst[i - 1][j].value)
+                elif lyst[i - 1][j].color == DARK_BLUE:
+                    graph.addEdge(lyst[i][j].value, lyst[i - 1][j].value, lyst[i - 1][j].weight)
 
-                if i - 1 >= 0:
-                    if lyst[i - 1][j].color != BLACK and lyst[i - 1][j].color != DARK_BLUE:
-                        graph.addEdge(lyst[i][j].value, lyst[i - 1][j].value)
-                    elif lyst[i - 1][j].color == DARK_BLUE:
-                        graph.addEdge(lyst[i][j].value, lyst[i - 1][j].value, lyst[i - 1][j].weight)
-
-
-                if i + 1 <= rows:
-                    if lyst[i + 1][j].color != BLACK and lyst[i + 1][j].color != DARK_BLUE:
-                        graph.addEdge(lyst[i][j].value, lyst[i + 1][j].value)
-                    elif lyst[i + 1][j].color == DARK_BLUE:
-                        graph.addEdge(lyst[i][j].value, lyst[i + 1][j].value, lyst[i + 1][j].weight)
-
-    else:
-        graph = Graph()
-
-        for i in range(rows - 1):
-            for j in range(cols - 1):
-                if lyst[i][j].color == BLACK:
-                    continue
-                if j - 1 >= 0:
-                    if lyst[i][j - 1].color != BLACK and lyst[i][j - 1].color != DARK_BLUE:
-                        graph.addEdge(lyst[i][j].value, lyst[i][j - 1].value)
-                if j + 1 <= cols:
-                    if lyst[i][j + 1].color != BLACK and lyst[i][j + 1].color != DARK_BLUE:
-                        graph.addEdge(lyst[i][j].value, lyst[i][j + 1].value)
-
-
-                if i - 1 >= 0:
-                    if lyst[i - 1][j].color != BLACK and lyst[i - 1][j].color != DARK_BLUE:
-                        graph.addEdge(lyst[i][j].value, lyst[i - 1][j].value)
-
-
-                if i + 1 <= rows:
-                    if lyst[i + 1][j].color != BLACK and lyst[i + 1][j].color != DARK_BLUE:
-                        graph.addEdge(lyst[i][j].value, lyst[i + 1][j].value)
-
+            if i + 1 <= rows:
+                if lyst[i + 1][j].color != BLACK and lyst[i + 1][j].color != DARK_BLUE:
+                    graph.addEdge(lyst[i][j].value, lyst[i + 1][j].value)
+                elif lyst[i + 1][j].color == DARK_BLUE:
+                    graph.addEdge(lyst[i][j].value, lyst[i + 1][j].value, lyst[i + 1][j].weight)
 
     return graph.graph
 
@@ -409,11 +375,13 @@ def draw_pathfinding(generator, screen, boxs):
     for i in generator:
         if boxs[i].color == GREEN or boxs[i].color == RED:
             continue
+        elif boxs[i].color == DARK_BLUE:
+            boxs[i].color = DARK_PINK
         else:
             boxs[i].color = PINK
-            boxs[i].draw_box(screen)
-            pygame.display.update()
-            sleep(DURATION)
+        boxs[i].draw_box(screen)
+        pygame.display.update()
+        sleep(DURATION)
 
     for i in generator.value:
         if boxs[i].color == GREEN or boxs[i].color == RED:
@@ -439,14 +407,11 @@ def displayPathfindingAlgorithm(screen, alg):
             counter += 1
         boxs.append(row)
 
-    weighted_algorithms = ['a_star','dijkstra']
-
     gen = None
     flattened_box_list = None
     running = True
     start = False
     path_displayed = False
-    weighted = False
 
     while running:
         screen.fill(AQUA)
@@ -477,21 +442,17 @@ def displayPathfindingAlgorithm(screen, alg):
                         elif boxs[row][col].color == RED:
                             end = boxs[row][col].value
 
-
-                if alg.__name__ in weighted_algorithms:
-                    lyst = build_adj_list(boxs,weighted=True)
-                    weighted = True
-                else:
-                    lyst = build_adj_list(boxs)
+                lyst = build_adj_list(boxs)
 
                 if alg.__name__ == 'a_star':
                     box_positions = []
                     for row in boxs:
                         for box in row:
                             box_positions.append((box.x, box.y))
-                    gen = Generator(gen=alg(lyst, start, end, box_positions,weighted))
+                    gen = Generator(gen=alg(lyst, start, end, box_positions))
                 else:
                     gen = Generator(gen=alg(lyst, start, end))
+
                 flattened_box_list = [item for row in boxs for item in row]
                 start = True
 
