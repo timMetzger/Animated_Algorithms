@@ -6,8 +6,6 @@ def a_star(graph, start, end, positions):
     # This implementation of A* is not ideal since diagonal movement does not exist so it often does not give the
     # optimal path as the heuristic value is too influential
 
-
-
     start_pos = positions[start]
     end_pos = positions[end]
 
@@ -15,7 +13,7 @@ def a_star(graph, start, end, positions):
     gScore[start] = 0
     parents = {}
     fScore = {node: float('inf') for node in graph.keys()}
-    fScore[start] = manhattan_distance(start_pos,end_pos)
+    fScore[start] = manhattan_distance(start_pos, end_pos)
     next_node = start
 
     open_set = {start}
@@ -23,10 +21,10 @@ def a_star(graph, start, end, positions):
     while open_set:
 
         # Selecting the node with the lowest fScore
-        current = min(fScore,key=fScore.get)
+        current = min(fScore, key=fScore.get)
 
         if current == end:
-            return path_as_list(start,end,parents)
+            return path_as_list(start, end, parents)
         yield current
 
         open_set.remove(current)
@@ -39,11 +37,10 @@ def a_star(graph, start, end, positions):
                 gScore[neighbor] = temp_gscore
 
                 neighbor_pos = positions[neighbor]
-                fScore[neighbor] = gScore[neighbor] + manhattan_distance(neighbor_pos,end_pos)
+                fScore[neighbor] = gScore[neighbor] + manhattan_distance(neighbor_pos, end_pos)
 
                 if neighbor not in open_set:
                     open_set.add(neighbor)
-
 
 
 def breadth_first(graph, start, end):
@@ -66,6 +63,7 @@ def breadth_first(graph, start, end):
             visited.add(vertex)
             yield vertex
 
+
 def depth_first(graph, start, end):
     stack = [(start, [start])]
     visited = set()
@@ -84,9 +82,7 @@ def depth_first(graph, start, end):
 def dijkstra(graph, start, end):
     # Without weights this is essentially a complicated BFS
 
-
     size = len(graph)
-
 
     # Traversal Distance
     dist = [float('inf') for _ in range(size)]
@@ -100,8 +96,8 @@ def dijkstra(graph, start, end):
 
     for _ in range(size):
 
-        current = minimum_distance(size,dist,sptSet)
-        print(current,graph[current])
+        current = minimum_distance(size, dist, sptSet)
+        print(current, graph[current])
 
         if current == end:
             break
@@ -110,11 +106,12 @@ def dijkstra(graph, start, end):
         sptSet[current] = True
 
         for neighbor in graph[current].keys():
-            if graph[current][neighbor] > 0 and sptSet[neighbor] is False and dist[neighbor] > dist[current] + graph[current][neighbor]:
+            if graph[current][neighbor] > 0 and sptSet[neighbor] is False and dist[neighbor] > dist[current] + \
+                    graph[current][neighbor]:
                 dist[neighbor] = dist[current] + graph[current][neighbor]
                 parents[neighbor] = current
 
-    return path_as_list(start,end,parents)
+    return path_as_list(start, end, parents)
 
 
 def path_as_list(start, end, data):
@@ -130,7 +127,8 @@ def path_as_list(start, end, data):
         path.append(backpath[-i - 1])
     return path
 
-def minimum_distance(size,dist,sptSet):
+
+def minimum_distance(size, dist, sptSet):
     min = float('inf')
     min_index = 0
     for u in range(size):
@@ -140,7 +138,6 @@ def minimum_distance(size,dist,sptSet):
 
     return min_index
 
+
 def manhattan_distance(current, destination):
     return abs(current[0] - destination[0]) + abs(current[1] - destination[1])
-
-

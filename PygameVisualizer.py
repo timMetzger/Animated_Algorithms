@@ -7,18 +7,23 @@ import sorting_algorithms
 import pathfinding_algorithms
 from collections import defaultdict
 
-ELEMENTS = 200
-FREQUENCY_UPPER = 1500
-FREQUENCY_LOWER = 100
-SAMPLE_RATE = 44100
-AMPLITUDE = 4096 / 10
-DURATION = 0.01
+# Number of elements for sorting
+ELEMENTS = 100
+
+# Sleep duration
+SLEEP = 0.01
+
+# Screen Size
 WIDTH = 1000
 HEIGHT = WIDTH
+GAP = WIDTH // ELEMENTS
+
+# Colors
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLACK = (0, 0, 0)
 AQUA = (50, 80, 99)
+DARK_AQUA = (50,80,110)
 GREEN = (0, 255, 0)
 GRAY = (169, 169, 169)
 DIM_GRAY = (105, 105, 105)
@@ -26,7 +31,7 @@ PINK = (219, 112, 147)
 DARK_PINK = (199, 21, 133)
 YELLOW = (204, 204, 0)
 DARK_BLUE = (25, 25, 112)
-GAP = WIDTH // ELEMENTS
+
 
 
 
@@ -59,7 +64,11 @@ class Bar:
         return self.height
 
     def get_color(self):
-        pass
+        return self.color
+
+    def __lt__(self,bar):
+        return self.height
+
 
 
 class Box:
@@ -291,6 +300,12 @@ def build_adj_list(lyst):
 
 # Maps list values to a frequency and creates .wav files
 def map_sound(lst, duration):
+    FREQUENCY_UPPER = 1500
+    FREQUENCY_LOWER = 100
+    SAMPLE_RATE = 44100
+    AMPLITUDE = 4096 / 10
+
+
     norm_lst = [float(i) / max(lst) for i in lst]
 
     # Linear interpolating normalized values to frequency band
@@ -327,9 +342,16 @@ def draw_bars(generator, bars, screen, frequencies):
             bar.draw(screen)
             pygame.mixer.Sound(f'tones/{frequencies[height]}.wav').play()
 
-        sleep(DURATION)
+        sleep(SLEEP)
     except StopIteration:
-        pass
+        for bar in sorted(bars):
+            bar.set_color(DARK_AQUA)
+            bar.draw(screen)
+            pygame.mixer.Sound(f'tones/{frequencies[bar.height]}.wav').play()
+            sleep(SLEEP)
+            pygame.display.update()
+
+        return True
 
 
 # Need to blit algorithm name to screen; create a back button, a timer, maybe log for comparison of algs
@@ -339,7 +361,7 @@ def displaySortingAlgorithm(screen, alg):
 
     screen.fill(AQUA)
     lst = getList()
-    frequencies = map_sound(lst, DURATION)
+    frequencies = map_sound(lst, SLEEP)
     bars = []
 
     for count, value in enumerate(lst):
@@ -349,6 +371,7 @@ def displaySortingAlgorithm(screen, alg):
 
     generator = alg(lst)
     running = True
+    done = False
     # Game loop
     start = pygame.time.get_ticks()
 
@@ -356,17 +379,21 @@ def displaySortingAlgorithm(screen, alg):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.KEYDOWN and event.key == 8:
                 running = False
 
-        screen.fill(WHITE)
-        draw_bars(generator, bars, screen, frequencies)
-        alg_name.draw_text(screen)
 
-        end = pygame.time.get_ticks()
-        delta_t = end - start
-        timer_text = Text(int(0.9 * WIDTH), 20, 32, str(delta_t / 1000) + " s")
-        timer_text.create_text()
-        timer_text.draw_text(screen)
+        if not done:
+            screen.fill(WHITE)
+            done = draw_bars(generator, bars, screen, frequencies)
+            alg_name.draw_text(screen)
+
+            end = pygame.time.get_ticks()
+            delta_t = end - start
+            timer_text = Text(int(0.9 * WIDTH), 20, 32, str(delta_t / 1000) + " s")
+            timer_text.create_text()
+            timer_text.draw_text(screen)
 
         pygame.display.update()
 
@@ -381,7 +408,7 @@ def draw_pathfinding(generator, screen, boxs):
             boxs[i].color = PINK
         boxs[i].draw_box(screen)
         pygame.display.update()
-        sleep(DURATION)
+        sleep(SLEEP)
 
     for i in generator.value:
         if boxs[i].color == GREEN or boxs[i].color == RED:
@@ -390,7 +417,7 @@ def draw_pathfinding(generator, screen, boxs):
             boxs[i].color = YELLOW
             boxs[i].draw_box(screen)
             pygame.display.update()
-            sleep(DURATION)
+            sleep(SLEEP)
 
     return True
 
@@ -421,6 +448,8 @@ def displayPathfindingAlgorithm(screen, alg):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.KEYDOWN and event.key == 8:
                 running = False
 
             # Handle drawing of start,end,and bounds
@@ -477,11 +506,13 @@ def sortingAlgorithmsMenu(screen):
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.KEYDOWN and event.key == 8:
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 sorting_menu.menu_selection(screen)
 
-        sleep(DURATION)
+        sleep(SLEEP)
         pygame.display.update()
 
 
@@ -498,6 +529,8 @@ def pathfindingAlgorithmMenu(screen):
         pathfinding_menu.draw_menu(screen)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.KEYDOWN and event.key == 8:
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pathfinding_menu.menu_selection(screen)
