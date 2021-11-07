@@ -1,5 +1,6 @@
-from random import choice
+from random import choice, choices
 BLACK = (0, 0, 0)
+AQUATIC_GREEN = (0, 255, 145)
 
 def a_star(graph, start, end, positions):
     # f = g + n
@@ -11,7 +12,11 @@ def a_star(graph, start, end, positions):
     start_pos = positions[start]
     end_pos = positions[end]
 
-    gScore = [float('inf') for _ in graph.keys()]
+
+
+    gScore = {key: float('inf') for key in graph.keys()}
+
+
     gScore[start] = 0
     parents = {}
     fScore = {node: float('inf') for node in graph.keys()}
@@ -22,17 +27,23 @@ def a_star(graph, start, end, positions):
 
     while open_set:
 
-        # Selecting the node with the lowest fScore
-        current = min(fScore, key=fScore.get)
+        # Selecting the node in open_set with lowest fScore
+        min_fScores = {key:value for key,value in sorted(fScore.items(),key=lambda item: item[1])}
+        for key,value in min_fScores.items():
+            if key in open_set:
+                current = key
+                break
+
+        open_set.remove(current)
 
         if current == end:
             return path_as_list(start, end, parents)
         yield current
 
-        if current in open_set:
-            open_set.remove(current)
+
 
         for neighbor in graph[current].keys():
+
 
             temp_gscore = gScore[current] + graph[current][neighbor]
             if temp_gscore < gScore[neighbor]:
@@ -87,21 +98,21 @@ def dijkstra(graph, start, end):
     size = len(graph)
 
     # Traversal Distance
-    dist = [float('inf') for _ in range(size)]
+    dist = {key:float('inf') for key in graph.keys()}
     dist[start] = 0
 
     # Shortest Path Tree
-    sptSet = [False for _ in range(size)]
+    sptSet = {key: False for key in graph.keys()}
 
     # List to read back path
     parents = {}
 
     for _ in range(size):
 
-        current = minimum_distance(size, dist, sptSet)
+        current = minimum_distance(dist, sptSet)
 
         if current == end:
-            break
+            return path_as_list(start, end, parents)
         yield current
 
         sptSet[current] = True
@@ -112,7 +123,7 @@ def dijkstra(graph, start, end):
                 dist[neighbor] = dist[current] + graph[current][neighbor]
                 parents[neighbor] = current
 
-    return path_as_list(start, end, parents)
+
 
 def depth_first_maze(boxs):
 
@@ -122,9 +133,9 @@ def depth_first_maze(boxs):
     stack.append(boxs[1][1])
     visited = []
 
-    for i in range(rows):
+    for _ in range(rows):
         row = []
-        for j in range(cols):
+        for _ in range(cols):
             row.append(False)
         visited.append(row)
 
@@ -138,29 +149,56 @@ def depth_first_maze(boxs):
         neighbors = []
         flag = False
 
-        # Left neighbor
+        # Top
         if i - 1 >= 0:
             if not visited[i - 1][j]:
                 neighbors.append(boxs[i-1][j])
                 flag = True
 
-        # Right neighbor
+        # Bottom
         if i + 1 <= rows - 1:
             if not visited[i + 1][j]:
                 neighbors.append(boxs[i+1][j])
                 flag = True
 
-        # Top neighbor
+        # Right
         if j + 1 <= cols - 1:
             if not visited[i][j + 1]:
                 neighbors.append(boxs[i][j+1])
                 flag = True
 
-        # Bottom neighbor
+        # Left
         if j - 1 >= 0:
             if not visited[i][j - 1]:
                 neighbors.append(boxs[i][j-1])
                 flag = True
+
+        # Top left
+        if i-1 >= 0 and j - 1 >= 0:
+            if not visited[i - 1][j - 1]:
+                neighbors.append(boxs[i - 1][j - 1])
+                flag = True
+
+        # Top right
+        if i-1 >= 0 and j + 1 <= cols - 1:
+            if not visited[i - 1][j + 1]:
+                neighbors.append(boxs[i - 1][j + 1])
+                flag = True
+
+        # Bottom left
+        if i+1 <= rows - 1 and j - 1 >= 0:
+            if not visited[i + 1][j - 1]:
+                neighbors.append(boxs[i+1][j - 1])
+                flag = True
+
+        # Bottom right
+        if i+1 <= rows - 1 and j + 1 <= cols - 1:
+            if not visited[i + 1][j + 1]:
+                neighbors.append(boxs[i+1][j + 1])
+                flag = True
+
+
+
 
         if flag:
             stack.append(current)
@@ -180,6 +218,93 @@ def depth_first_maze(boxs):
 
     return "Jobs Done!"
 
+def depth_first_maze_weighted(boxs):
+    rows = len(boxs)
+    cols = len(boxs[0])
+    stack = []
+    stack.append(boxs[1][1])
+    visited = []
+
+    for _ in range(rows):
+        row = []
+        for _ in range(cols):
+            row.append(False)
+        visited.append(row)
+
+    visited[1][1] = True
+
+    while stack:
+        current = stack.pop()
+        i, j = get_indices(boxs, current)
+
+        neighbors = []
+        flag = False
+
+        # Top
+        if i - 1 >= 0:
+            if not visited[i - 1][j]:
+                neighbors.append(boxs[i - 1][j])
+                flag = True
+
+        # Bottom
+        if i + 1 <= rows - 1:
+            if not visited[i + 1][j]:
+                neighbors.append(boxs[i + 1][j])
+                flag = True
+
+        # Right
+        if j + 1 <= cols - 1:
+            if not visited[i][j + 1]:
+                neighbors.append(boxs[i][j + 1])
+                flag = True
+
+        # Left
+        if j - 1 >= 0:
+            if not visited[i][j - 1]:
+                neighbors.append(boxs[i][j - 1])
+                flag = True
+
+        # Top left
+        if i - 1 >= 0 and j - 1 >= 0:
+            if not visited[i - 1][j - 1]:
+                neighbors.append(boxs[i - 1][j - 1])
+                flag = True
+
+        # Top right
+        if i - 1 >= 0 and j + 1 <= cols - 1:
+            if not visited[i - 1][j + 1]:
+                neighbors.append(boxs[i - 1][j + 1])
+                flag = True
+
+        # Bottom left
+        if i + 1 <= rows - 1 and j - 1 >= 0:
+            if not visited[i + 1][j - 1]:
+                neighbors.append(boxs[i + 1][j - 1])
+                flag = True
+
+        # Bottom right
+        if i + 1 <= rows - 1 and j + 1 <= cols - 1:
+            if not visited[i + 1][j + 1]:
+                neighbors.append(boxs[i + 1][j + 1])
+                flag = True
+
+        if flag:
+            stack.append(current)
+            chosen_wall, chosen_weight = choices(neighbors,k=2)
+            chosen_wall.color = BLACK
+            if chosen_weight.color != BLACK:
+                chosen_weight.color = AQUATIC_GREEN
+            stack.append(chosen_wall)
+
+            for neighbor in neighbors:
+                if neighbor is not chosen_wall:
+                    stack.append(neighbor)
+                i, j = get_indices(boxs, neighbor)
+                visited[i][j] = True
+
+            yield [chosen_wall,chosen_weight]
+
+    return "Jobs Done!"
 
 def get_indices(boxs, current):
     rows = len(boxs)
@@ -205,15 +330,15 @@ def path_as_list(start, end, data):
     return path
 
 
-def minimum_distance(size, dist, sptSet):
-    min = float('inf')
-    min_index = 0
-    for u in range(size):
-        if dist[u] < min and sptSet[u] is False:
-            min = dist[u]
-            min_index = u
+def minimum_distance(dist, sptSet):
+    min_val = float('inf')
+    min_node = 0
+    for node,value in dist.items():
+        if value < min_val and sptSet[node] is False:
+            min_node = node
+            min_val = value
 
-    return min_index
+    return min_node
 
 
 def manhattan_distance(current, destination):

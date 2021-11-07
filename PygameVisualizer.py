@@ -24,13 +24,13 @@ RED = (255, 0, 0)
 BLACK = (0, 0, 0)
 AQUA = (50, 80, 99)
 DARK_AQUA = (50,80,110)
-GREEN = (0, 255, 0)
+GREEN = (75, 150, 0)
 GRAY = (169, 169, 169)
 DIM_GRAY = (105, 105, 105)
 PINK = (219, 112, 147)
 DARK_PINK = (199, 21, 133)
 YELLOW = (204, 204, 0)
-DARK_BLUE = (25, 25, 112)
+AQUATIC_GREEN = (0, 255, 145)
 
 
 
@@ -120,13 +120,13 @@ class Box:
         elif event.type == pygame.KEYDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
             if self.x < mouse_x < self.x + self.width and self.y < mouse_y < self.y + self.height:
-                if event.key == 119:
-                    if self.color == DARK_BLUE:
+                if event.key == 113:
+                    if self.color == AQUATIC_GREEN:
                         self.color = WHITE
                         self.weight = 1
 
                     else:
-                        self.color = DARK_BLUE
+                        self.color = AQUATIC_GREEN
                         self.weight = 5
 
 
@@ -272,27 +272,27 @@ def build_adj_list(lyst):
             if lyst[i][j].color == BLACK:
                 continue
             if j - 1 >= 0:
-                if lyst[i][j - 1].color != BLACK and lyst[i][j - 1].color != DARK_BLUE:
+                if lyst[i][j - 1].color != BLACK and lyst[i][j - 1].color != AQUATIC_GREEN:
                     graph.addEdge(lyst[i][j].value, lyst[i][j - 1].value)
-                elif lyst[i][j - 1].color == DARK_BLUE:
+                elif lyst[i][j - 1].color == AQUATIC_GREEN:
                     graph.addEdge(lyst[i][j].value, lyst[i][j - 1].value, lyst[i][j - 1].weight)
 
             if j + 1 <= cols:
-                if lyst[i][j + 1].color != BLACK and lyst[i][j + 1].color != DARK_BLUE:
+                if lyst[i][j + 1].color != BLACK and lyst[i][j + 1].color != AQUATIC_GREEN:
                     graph.addEdge(lyst[i][j].value, lyst[i][j + 1].value)
-                elif lyst[i][j + 1].color == DARK_BLUE:
+                elif lyst[i][j + 1].color == AQUATIC_GREEN:
                     graph.addEdge(lyst[i][j].value, lyst[i][j + 1].value, lyst[i][j + 1].weight)
 
             if i - 1 >= 0:
-                if lyst[i - 1][j].color != BLACK and lyst[i - 1][j].color != DARK_BLUE:
+                if lyst[i - 1][j].color != BLACK and lyst[i - 1][j].color != AQUATIC_GREEN:
                     graph.addEdge(lyst[i][j].value, lyst[i - 1][j].value)
-                elif lyst[i - 1][j].color == DARK_BLUE:
+                elif lyst[i - 1][j].color == AQUATIC_GREEN:
                     graph.addEdge(lyst[i][j].value, lyst[i - 1][j].value, lyst[i - 1][j].weight)
 
             if i + 1 <= rows:
-                if lyst[i + 1][j].color != BLACK and lyst[i + 1][j].color != DARK_BLUE:
+                if lyst[i + 1][j].color != BLACK and lyst[i + 1][j].color != AQUATIC_GREEN:
                     graph.addEdge(lyst[i][j].value, lyst[i + 1][j].value)
-                elif lyst[i + 1][j].color == DARK_BLUE:
+                elif lyst[i + 1][j].color == AQUATIC_GREEN:
                     graph.addEdge(lyst[i][j].value, lyst[i + 1][j].value, lyst[i + 1][j].weight)
 
     return graph.graph
@@ -414,7 +414,7 @@ def draw_pathfinding(generator, screen, boxs):
     for i in generator:
         if boxs[i].color == GREEN or boxs[i].color == RED:
             continue
-        elif boxs[i].color == DARK_BLUE:
+        elif boxs[i].color == AQUATIC_GREEN:
             boxs[i].color = DARK_PINK
         else:
             boxs[i].color = PINK
@@ -463,8 +463,15 @@ def displayPathfindingAlgorithm(screen, alg):
 
         if maze_building:
             for step in maze_generator:
-                step.draw_box(screen)
-                pygame.display.update()
+                if type(step) is list:
+                    for val in step:
+                        val.draw_box(screen)
+                        pygame.display.update()
+                else:
+                    step.draw_box(screen)
+                    pygame.display.update()
+
+
 
             maze_building = False
 
@@ -479,10 +486,18 @@ def displayPathfindingAlgorithm(screen, alg):
                 for row in boxs:
                     for col in row:
                         col.draw_bounds(event, boxs)
-            # Build maze when 'p' is pressed
-            if event.type == pygame.KEYDOWN and event.key == 112 and maze_building is False:
-                maze_generator = Generator(pathfinding_algorithms.depth_first_maze(boxs))
-                maze_building = True
+
+
+            # Build weighted maze when 'e' is pressed
+            if maze_building is False:
+                if event.type == pygame.KEYDOWN and event.key == 101:
+                    maze_generator = Generator(pathfinding_algorithms.depth_first_maze_weighted(boxs))
+                    maze_building = True
+
+                # Build maze when 'w' is pressed
+                elif event.type == pygame.KEYDOWN and event.key == 119:
+                    maze_generator = Generator(pathfinding_algorithms.depth_first_maze(boxs))
+                    maze_building = True
 
             # Start algorithm
             if event.type == pygame.KEYDOWN and event.key == 13 and start is False:
