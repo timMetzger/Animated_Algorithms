@@ -8,7 +8,6 @@ def a_star(graph, start, end, positions):
 
     # This implementation of A* is not ideal since diagonal movement does not exist so it often does not give the
     # optimal path as the heuristic value is too influential
-
     start_pos = positions[start]
     end_pos = positions[end]
 
@@ -30,7 +29,8 @@ def a_star(graph, start, end, positions):
             return path_as_list(start, end, parents)
         yield current
 
-        open_set.remove(current)
+        if current in open_set:
+            open_set.remove(current)
 
         for neighbor in graph[current].keys():
 
@@ -121,52 +121,64 @@ def depth_first_maze(boxs):
     stack = []
     stack.append(boxs[1][1])
     visited = []
+
     for i in range(rows):
         row = []
         for j in range(cols):
             row.append(False)
         visited.append(row)
 
+    visited[1][1] = True
 
     while stack:
         current = stack.pop()
         i,j = get_indices(boxs,current)
-        print(i,j)
+
 
         neighbors = []
+        flag = False
 
         # Left neighbor
         if i - 1 >= 0:
-            neighbors.append(boxs[i-1][j])
-            visited[i-1][j] = True
+            if not visited[i - 1][j]:
+                neighbors.append(boxs[i-1][j])
+                flag = True
 
         # Right neighbor
-        if i + 1 <= rows:
-            neighbors.append(boxs[i+1][j])
-            visited[i + 1][j] = True
+        if i + 1 <= rows - 1:
+            if not visited[i + 1][j]:
+                neighbors.append(boxs[i+1][j])
+                flag = True
 
         # Top neighbor
-        if j + 1 <= cols:
-            neighbors.append(boxs[i][j+1])
-            visited[i][j + 1] = True
+        if j + 1 <= cols - 1:
+            if not visited[i][j + 1]:
+                neighbors.append(boxs[i][j+1])
+                flag = True
 
+        # Bottom neighbor
         if j - 1 >= 0:
-            neighbors.append(boxs[i][j-1])
-            visited[i][j - 1] = True
+            if not visited[i][j - 1]:
+                neighbors.append(boxs[i][j-1])
+                flag = True
+
+        if flag:
+            stack.append(current)
+            chosen_one = choice(neighbors)
+            chosen_one.color = BLACK
+            stack.append(chosen_one)
+
+            for neighbor in neighbors:
+                if neighbor is not chosen_one:
+                    stack.append(neighbor)
+                i,j = get_indices(boxs, neighbor)
+                visited[i][j] = True
 
 
 
-        chosen_one = choice(neighbors)
-        chosen_one.color = BLACK
-        i,j = get_indices(boxs, chosen_one)
-        visited[i][j] = True
-        stack.append(chosen_one)
+            yield chosen_one
 
-        yield boxs
     return "Jobs Done!"
-
-
-
 
 
 def get_indices(boxs, current):
@@ -176,6 +188,7 @@ def get_indices(boxs, current):
         for j in range(cols):
             if boxs[i][j] is current:
                 return i,j
+
 
 
 def path_as_list(start, end, data):

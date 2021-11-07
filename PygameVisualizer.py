@@ -262,13 +262,13 @@ def getList():
 def build_adj_list(lyst):
     """Builds the adjacency list for use in pathfinding algorithms"""
 
-    rows = len(lyst)
-    cols = len(lyst[0])
+    rows = len(lyst) - 1
+    cols = len(lyst[0]) - 1
 
     graph = Weighted_Graph()
 
-    for i in range(rows - 1):
-        for j in range(cols - 1):
+    for i in range(rows):
+        for j in range(cols):
             if lyst[i][j].color == BLACK:
                 continue
             if j - 1 >= 0:
@@ -353,6 +353,18 @@ def draw_bars(generator, bars, screen, frequencies):
 
         return True
 
+def draw_border(boxs):
+    # Top edge
+    rows = len(boxs)
+    cols = len(boxs[0])
+
+    for j in range(cols):
+        boxs[0][j].color = BLACK
+        boxs[rows-1][j].color = BLACK
+
+    for i in range(rows):
+        boxs[i][0].color = BLACK
+        boxs[i][cols-1].color = BLACK
 
 # Need to blit algorithm name to screen; create a back button, a timer, maybe log for comparison of algs
 def displaySortingAlgorithm(screen, alg):
@@ -434,6 +446,8 @@ def displayPathfindingAlgorithm(screen, alg):
             counter += 1
         boxs.append(row)
 
+    draw_border(boxs)
+
     gen = None
     flattened_box_list = None
     running = True
@@ -449,9 +463,8 @@ def displayPathfindingAlgorithm(screen, alg):
 
         if maze_building:
             for step in maze_generator:
-                for row in step:
-                    for col in row:
-                        col.draw_box(screen)
+                step.draw_box(screen)
+                pygame.display.update()
 
             maze_building = False
 
