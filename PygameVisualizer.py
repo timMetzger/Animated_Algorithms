@@ -23,7 +23,7 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLACK = (0, 0, 0)
 AQUA = (50, 80, 99)
-DARK_AQUA = (50,80,110)
+DARK_AQUA = (50, 80, 110)
 GREEN = (75, 150, 0)
 GRAY = (169, 169, 169)
 DIM_GRAY = (105, 105, 105)
@@ -31,8 +31,6 @@ PINK = (219, 112, 147)
 DARK_PINK = (199, 21, 133)
 YELLOW = (204, 204, 0)
 AQUATIC_GREEN = (0, 255, 145)
-
-
 
 
 class Weighted_Graph:
@@ -66,9 +64,8 @@ class Bar:
     def get_color(self):
         return self.color
 
-    def __lt__(self,bar):
+    def __lt__(self, bar):
         return self.height
-
 
 
 class Box:
@@ -305,7 +302,6 @@ def map_sound(lst, duration):
     SAMPLE_RATE = 44100
     AMPLITUDE = 4096 / 10
 
-
     norm_lst = [float(i) / max(lst) for i in lst]
 
     # Linear interpolating normalized values to frequency band
@@ -353,6 +349,7 @@ def draw_bars(generator, bars, screen, frequencies):
 
         return True
 
+
 def draw_border(boxs):
     # Top edge
     rows = len(boxs)
@@ -360,11 +357,12 @@ def draw_border(boxs):
 
     for j in range(cols):
         boxs[0][j].color = BLACK
-        boxs[rows-1][j].color = BLACK
+        boxs[rows - 1][j].color = BLACK
 
     for i in range(rows):
         boxs[i][0].color = BLACK
-        boxs[i][cols-1].color = BLACK
+        boxs[i][cols - 1].color = BLACK
+
 
 # Need to blit algorithm name to screen; create a back button, a timer, maybe log for comparison of algs
 def displaySortingAlgorithm(screen, alg):
@@ -394,7 +392,6 @@ def displaySortingAlgorithm(screen, alg):
                 pygame.quit()
             if event.type == pygame.KEYDOWN and event.key == 8:
                 running = False
-
 
         if not done:
             screen.fill(WHITE)
@@ -471,8 +468,6 @@ def displayPathfindingAlgorithm(screen, alg):
                     step.draw_box(screen)
                     pygame.display.update()
 
-
-
             maze_building = False
 
         for event in pygame.event.get():
@@ -486,7 +481,6 @@ def displayPathfindingAlgorithm(screen, alg):
                 for row in boxs:
                     for col in row:
                         col.draw_bounds(event, boxs)
-
 
             # Build weighted maze when 'e' is pressed
             if maze_building is False:
