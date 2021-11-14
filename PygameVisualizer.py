@@ -258,8 +258,8 @@ def getList():
 def build_adj_list(lyst):
     """Builds the adjacency list for use in pathfinding algorithms"""
 
-    rows = len(lyst) - 1
-    cols = len(lyst[0]) - 1
+    rows = len(lyst)
+    cols = len(lyst[0])
 
     graph = Weighted_Graph()
 
@@ -273,7 +273,7 @@ def build_adj_list(lyst):
                 elif lyst[i][j - 1].color == AQUATIC_GREEN:
                     graph.addEdge(lyst[i][j].value, lyst[i][j - 1].value, lyst[i][j - 1].weight)
 
-            if j + 1 <= cols:
+            if j + 1 < cols:
                 if lyst[i][j + 1].color != BLACK and lyst[i][j + 1].color != AQUATIC_GREEN:
                     graph.addEdge(lyst[i][j].value, lyst[i][j + 1].value)
                 elif lyst[i][j + 1].color == AQUATIC_GREEN:
@@ -285,7 +285,7 @@ def build_adj_list(lyst):
                 elif lyst[i - 1][j].color == AQUATIC_GREEN:
                     graph.addEdge(lyst[i][j].value, lyst[i - 1][j].value, lyst[i - 1][j].weight)
 
-            if i + 1 <= rows:
+            if i + 1 < rows:
                 if lyst[i + 1][j].color != BLACK and lyst[i + 1][j].color != AQUATIC_GREEN:
                     graph.addEdge(lyst[i][j].value, lyst[i + 1][j].value)
                 elif lyst[i + 1][j].color == AQUATIC_GREEN:
@@ -528,29 +528,73 @@ def displayMST_Algorithm(screen, alg):
     box_width = 5
     box_height = 5
     counter = 0
-    for y in range(50, HEIGHT, 100):
+
+    for y in range(50, HEIGHT, 150):
         row = []
-        for x in range(50, WIDTH, 50):
-            row.append(Box(x=x, y=y, width=box_width, height=box_height, value=counter))
+        for x in range(50, WIDTH, 150):
+            row.append(Box(x=random.randint(50,WIDTH), y=random.randint(50,HEIGHT), width=box_width, height=box_height, value=counter))
             counter += 1
+
         boxs.append(row)
 
-    # TO DO
+    lyst = build_adj_list(boxs)
+    flattened_box_list = [item for row in boxs for item in row]
 
+    screen.fill(AQUA)
+    for node in lyst.keys():
+        start_pos = (flattened_box_list[node].x, flattened_box_list[node].y)
+        for neighbor in lyst[node].keys():
+            end_pos = (flattened_box_list[neighbor].x, flattened_box_list[neighbor].y)
+            pygame.draw.line(screen,BLACK,start_pos=start_pos,end_pos=end_pos)
+
+    for row in boxs:
+        for col in row:
+            col.draw_box(screen)
+
+
+    gen = Generator(alg(lyst))
 
     running = True
+    start = False
     while running:
-        screen.fill(AQUA)
+        if start:
+            for item in gen:
+                node = flattened_box_list[item[0]]
 
-        for row in boxs:
-            for col in row:
-                col.draw_box(screen)
+                start_pos = (flattened_box_list[item[0]].x, flattened_box_list[item[0]].y)
+
+
+                for neighbor in lyst[item[0]].keys():
+                    print(neighbor)
+                    if neighbor == item[1]:
+                        continue
+                    end_pos = (flattened_box_list[neighbor].x, flattened_box_list[neighbor].y)
+                    pygame.draw.line(screen,AQUA,start_pos=start_pos,end_pos=end_pos)
+                    flattened_box_list[neighbor].draw_box(screen)
+
+
+                end_pos = (flattened_box_list[item[1]].x, flattened_box_list[item[1]].y)
+                pygame.draw.line(screen,RED,start_pos=start_pos,end_pos=end_pos,width = 2)
+                flattened_box_list[item[0]].draw_box(screen)
+                sleep(SLEEP)
+                pygame.display.update()
+
+            start = False
+
+
+
+
+
+
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
             if event.type == pygame.KEYDOWN and event.key == 8:
                 running = False
+
+            if event.type == pygame.KEYDOWN and event.key == 13 and start is False:
+                start = True
 
         pygame.display.update()
 

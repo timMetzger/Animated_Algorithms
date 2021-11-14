@@ -93,12 +93,13 @@ def dijkstra(graph, start, end):
 
     size = len(graph)
 
+    keys = graph.keys()
     # Traversal Distance
-    dist = {key: float('inf') for key in graph.keys()}
+    dist = {key: float('inf') for key in keys}
     dist[start] = 0
 
     # Shortest Path Tree
-    sptSet = {key: False for key in graph.keys()}
+    sptSet = {key: False for key in keys}
 
     # List to read back path
     parents = {}
