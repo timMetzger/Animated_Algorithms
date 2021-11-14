@@ -3,8 +3,7 @@ import pygame
 import numpy as np
 from scipy.io import wavfile
 from time import sleep
-import sorting_algorithms
-import pathfinding_algorithms
+import sorting_algorithms, pathfinding_algorithms, spanning_tree_algorithms
 from collections import defaultdict
 
 # Number of elements for sorting
@@ -363,6 +362,29 @@ def draw_border(boxs):
         boxs[i][0].color = BLACK
         boxs[i][cols - 1].color = BLACK
 
+def draw_pathfinding(generator, screen, boxs):
+    for i in generator:
+        if boxs[i].color == GREEN or boxs[i].color == RED:
+            continue
+        elif boxs[i].color == AQUATIC_GREEN:
+            boxs[i].color = DARK_PINK
+        else:
+            boxs[i].color = PINK
+        boxs[i].draw_box(screen)
+        pygame.display.update()
+        sleep(SLEEP)
+
+    for i in generator.value:
+        if boxs[i].color == GREEN or boxs[i].color == RED:
+            continue
+        else:
+            boxs[i].color = YELLOW
+            boxs[i].draw_box(screen)
+            pygame.display.update()
+            sleep(SLEEP)
+
+    return True
+
 
 # Need to blit algorithm name to screen; create a back button, a timer, maybe log for comparison of algs
 def displaySortingAlgorithm(screen, alg):
@@ -405,30 +427,6 @@ def displaySortingAlgorithm(screen, alg):
             timer_text.draw_text(screen)
 
         pygame.display.update()
-
-
-def draw_pathfinding(generator, screen, boxs):
-    for i in generator:
-        if boxs[i].color == GREEN or boxs[i].color == RED:
-            continue
-        elif boxs[i].color == AQUATIC_GREEN:
-            boxs[i].color = DARK_PINK
-        else:
-            boxs[i].color = PINK
-        boxs[i].draw_box(screen)
-        pygame.display.update()
-        sleep(SLEEP)
-
-    for i in generator.value:
-        if boxs[i].color == GREEN or boxs[i].color == RED:
-            continue
-        else:
-            boxs[i].color = YELLOW
-            boxs[i].draw_box(screen)
-            pygame.display.update()
-            sleep(SLEEP)
-
-    return True
 
 
 def displayPathfindingAlgorithm(screen, alg):
@@ -525,6 +523,37 @@ def displayPathfindingAlgorithm(screen, alg):
 
         pygame.display.update()
 
+def displayMST_Algorithm(screen, alg):
+    boxs = []
+    box_width = 5
+    box_height = 5
+    counter = 0
+    for y in range(50, HEIGHT, 100):
+        row = []
+        for x in range(50, WIDTH, 50):
+            row.append(Box(x=x, y=y, width=box_width, height=box_height, value=counter))
+            counter += 1
+        boxs.append(row)
+
+    # TO DO
+
+
+    running = True
+    while running:
+        screen.fill(AQUA)
+
+        for row in boxs:
+            for col in row:
+                col.draw_box(screen)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.KEYDOWN and event.key == 8:
+                running = False
+
+        pygame.display.update()
+
 
 def sortingAlgorithmsMenu(screen):
     sorting_menu = Menu()
@@ -556,7 +585,7 @@ def pathfindingAlgorithmMenu(screen):
     button_labels = ["A-Star", "Breadth First", "Depth First", "Dijkstra"]
     button_functions = [pathfinding_algorithms.a_star, pathfinding_algorithms.breadth_first,
                         pathfinding_algorithms.depth_first, pathfinding_algorithms.dijkstra]
-    pathfinding_menu.create_menu(4, button_labels, button_functions, displayPathfindingAlgorithm)
+    pathfinding_menu.create_menu(len(button_labels), button_labels, button_functions, displayPathfindingAlgorithm)
 
     running = True
     while running:
@@ -573,6 +602,31 @@ def pathfindingAlgorithmMenu(screen):
         pygame.display.update()
 
 
+def spanningTreeAlgorithmsMenu(screen):
+    spanning_tree_menu = Menu()
+    button_labels = ["Boruvka's", "Prim's", "Kruskal's", 'Reverse-Delete']
+    button_functions = [spanning_tree_algorithms.boruvkas, spanning_tree_algorithms.prims,
+                        spanning_tree_algorithms.kruskals, spanning_tree_algorithms.reverse_delete]
+
+    spanning_tree_menu.create_menu(len(button_labels), button_labels, button_functions, displayMST_Algorithm)
+    running = True
+
+    while running:
+        screen.fill(AQUA)
+        spanning_tree_menu.draw_menu(screen)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.KEYDOWN and event.key == 8:
+                running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                spanning_tree_menu.menu_selection(screen)
+
+        pygame.display.update()
+
+def otherAlgorithmsMenu(screen):
+    pass
+
 def main_menu():
     pygame.init()
     icon = pygame.image.load("blur.png")
@@ -581,11 +635,14 @@ def main_menu():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
     menu = Menu()
-    button_labels = ["Pathfinding", "Sorting"]
-    button_functions = [pathfindingAlgorithmMenu, sortingAlgorithmsMenu]
-    menu.create_menu(2, button_labels, button_functions)
+    button_labels = ["Pathfinding", "Spanning Trees", "Other",  "Sorting"]
+    button_functions = [pathfindingAlgorithmMenu, spanningTreeAlgorithmsMenu, otherAlgorithmsMenu, sortingAlgorithmsMenu]
+    menu.create_menu(len(button_labels), button_labels, button_functions)
     menu.menu_buttons[0].next_menu = sortingAlgorithmsMenu
     menu.menu_buttons[1].next_menu = pathfindingAlgorithmMenu
+    menu.menu_buttons[2].next_menu = spanningTreeAlgorithmsMenu
+    menu.menu_buttons[3].next_menu = otherAlgorithmsMenu
+
 
     running = True
     while running:
