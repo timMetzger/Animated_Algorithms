@@ -3,7 +3,7 @@ import pygame
 import numpy as np
 from scipy.io import wavfile
 from time import sleep
-import sorting_algorithms, pathfinding_algorithms, spanning_tree_algorithms
+import sorting_algorithms, pathfinding_algorithms, spanning_tree_algorithms, game_algorithms, constraint_algorithms
 from collections import defaultdict
 
 # Number of elements for sorting
@@ -669,7 +669,25 @@ def spanningTreeAlgorithmsMenu(screen):
         pygame.display.update()
 
 def otherAlgorithmsMenu(screen):
-    pass
+    other_menu = Menu()
+    button_labels = ['Tic-Tac-Toe','Connect Four','Airplane Scheduler','Box Coloring']
+    button_functions = [game_algorithms.tic_tac_toe, game_algorithms.connect_four, constraint_algorithms.airplane, constraint_algorithms.coloring]
+    other_menu.create_menu(len(button_labels),button_labels,button_functions)
+
+    running = True
+    while running:
+        screen.fill(AQUA)
+        other_menu.draw_menu(screen)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.KEYDOWN and event.key == 8:
+                running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                other_menu.menu_selection(screen)
+
+        pygame.display.update()
 
 def main_menu():
     pygame.init()

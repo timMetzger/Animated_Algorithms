@@ -1,4 +1,55 @@
-# import random
+import random
+
+def merge_sort(arr):
+    print(arr)
+    if len(arr) <= 1:
+        return arr
+
+    # Dividing list into left and right halves
+    left = []
+    right = []
+
+    for i,x in enumerate(arr):
+        if i < len(arr)/2:
+            left.append(x)
+        else:
+            right.append(x)
+
+    print(left,right)
+    left = merge_sort(left)
+    right = merge_sort(right)
+
+    yield from merge(left,right,len(arr))
+
+
+def merge(left,right,size):
+    result = []
+    i = 0
+    print(left,right)
+    while left and right:
+        if left[0] <= right[0]:
+            l = left[0]
+            result.append(left[0])
+            left = left[1:]
+        else:
+            l = left[0]
+            result.append(right[0])
+            right = right[1:]
+        i += 1
+
+        yield result, 0, size, 0
+
+    while left:
+        result.append(left[0])
+        left = left[1:]
+
+    while right:
+        result.append(right[0])
+        right = right[1:]
+
+    yield result, 0, size, 0
+
+
 
 def quick_sort(arr, left=None, right=None):
 
@@ -87,11 +138,7 @@ def heap_sort(arr):
         arr[i],arr[0] = arr[0],arr[i]
         yield from heapify(arr,i,0)
 
-def merge_sort(arr):
-    pass
 
 
-# arr = [random.randint(1,100) for _ in range(100)]
-# gen = heap_sort(arr)
-# for step in gen:
-#     print(step)
+arr = [random.randint(1,100) for _ in range(100)]
+print(merge_sort(arr))
