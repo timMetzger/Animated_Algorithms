@@ -128,7 +128,7 @@ class Box:
 
 class Button:
 
-    def __init__(self, height, width, x, y, label, next_screen, alg=None):
+    def __init__(self, height, width, x, y, label, next_screen=None, alg=None):
         self.height = height
         self.width = width
         self.x = x
@@ -159,6 +159,15 @@ class Button:
             self.next_screen(screen)
         else:
             self.next_screen(screen, self.alg)
+
+    def run_alg(self):
+        mouse = pygame.mouse.get_pos()
+        mouse_x = mouse[0]
+        mouse_y = mouse[1]
+        if self.x < mouse_x < self.x + self.width and self.y < mouse_y < self.y + self.height:
+            return self.alg()
+        else:
+            return None
 
     def set_color(self, color):
         self.color = color
@@ -362,6 +371,18 @@ def draw_border(boxs):
         boxs[i][0].color = BLACK
         boxs[i][cols - 1].color = BLACK
 
+
+def draw_tic_tac_toe_board(screen):
+    # Drawing tic-tac-toe board
+    screen.fill(AQUA)
+    pygame.draw.line(screen, BLACK, (WIDTH // 3, 0), (WIDTH // 3, HEIGHT), width=2)
+    pygame.draw.line(screen, BLACK, (WIDTH // 3 * 2, 0), (WIDTH // 3 * 2, HEIGHT), width=2)
+
+    pygame.draw.line(screen, BLACK, (0, HEIGHT // 3), (WIDTH, HEIGHT // 3), width=2)
+    pygame.draw.line(screen, BLACK, (0, HEIGHT // 3 * 2), (WIDTH, HEIGHT // 3 * 2), width=2)
+    pygame.display.update()
+
+
 def draw_pathfinding(generator, screen, boxs):
     for i in generator:
         if boxs[i].color == GREEN or boxs[i].color == RED:
@@ -523,6 +544,7 @@ def displayPathfindingAlgorithm(screen, alg):
 
         pygame.display.update()
 
+
 def displayMST_Algorithm(screen, alg):
     boxs = []
     box_width = 5
@@ -532,7 +554,9 @@ def displayMST_Algorithm(screen, alg):
     for y in range(50, HEIGHT, 150):
         row = []
         for x in range(50, WIDTH, 150):
-            row.append(Box(x=random.randint(50,WIDTH), y=random.randint(50,HEIGHT), width=box_width, height=box_height, value=counter))
+            row.append(
+                Box(x=random.randint(50, WIDTH), y=random.randint(50, HEIGHT), width=box_width, height=box_height,
+                    value=counter))
             counter += 1
 
         boxs.append(row)
@@ -545,12 +569,11 @@ def displayMST_Algorithm(screen, alg):
         start_pos = (flattened_box_list[node].x, flattened_box_list[node].y)
         for neighbor in lyst[node].keys():
             end_pos = (flattened_box_list[neighbor].x, flattened_box_list[neighbor].y)
-            pygame.draw.line(screen,BLACK,start_pos=start_pos,end_pos=end_pos)
+            pygame.draw.line(screen, BLACK, start_pos=start_pos, end_pos=end_pos)
 
     for row in boxs:
         for col in row:
             col.draw_box(screen)
-
 
     gen = Generator(alg(lyst))
 
@@ -563,29 +586,20 @@ def displayMST_Algorithm(screen, alg):
 
                 start_pos = (flattened_box_list[item[0]].x, flattened_box_list[item[0]].y)
 
-
                 for neighbor in lyst[item[0]].keys():
-                    print(neighbor)
                     if neighbor == item[1]:
                         continue
                     end_pos = (flattened_box_list[neighbor].x, flattened_box_list[neighbor].y)
-                    pygame.draw.line(screen,AQUA,start_pos=start_pos,end_pos=end_pos)
+                    pygame.draw.line(screen, AQUA, start_pos=start_pos, end_pos=end_pos)
                     flattened_box_list[neighbor].draw_box(screen)
 
-
                 end_pos = (flattened_box_list[item[1]].x, flattened_box_list[item[1]].y)
-                pygame.draw.line(screen,RED,start_pos=start_pos,end_pos=end_pos,width = 2)
+                pygame.draw.line(screen, RED, start_pos=start_pos, end_pos=end_pos, width=2)
                 flattened_box_list[item[0]].draw_box(screen)
                 sleep(SLEEP)
                 pygame.display.update()
 
             start = False
-
-
-
-
-
-
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -668,11 +682,124 @@ def spanningTreeAlgorithmsMenu(screen):
 
         pygame.display.update()
 
+
+def coin_flip():
+    return random.randint(0, 1)
+
+
+def get_board_bounds(board):
+    rows = len(board)
+    cols = len(board[0])
+
+    box_width = WIDTH // cols
+    box_height = HEIGHT // rows
+
+    board_bounds = []
+    x = 0
+    y = 0
+    for i in range(rows):
+        row_bounds = []
+        x = 0
+        for j in range(cols):
+            row_bounds.append([x, y, x + box_width, y + box_height])
+            x += box_width
+        y += box_height
+        board_bounds.append(row_bounds)
+
+    return board_bounds
+
+
+def place_x(screen, x, y):
+    x_text = Text(x=x, y=y, size=72, text="X", color=BLACK)
+    x_text.create_text()
+    x_text.draw_text(screen)
+
+
+def tic_tac_toe(screen):
+    draw_tic_tac_toe_board(screen)
+
+    coin_flip_button = Button(height=HEIGHT // 3, width=WIDTH // 3, x=WIDTH // 3, y=HEIGHT // 3, label="Coin Flip",
+                              alg=coin_flip)
+    game_board = [[None, None, None], [None, None, None], [None, None, None]]
+    game_board_bounds = get_board_bounds(game_board)
+
+    running = True
+    playing = False
+    players_turn = False
+
+    while running:
+        mouse = pygame.mouse.get_pos()
+        mouse_x = mouse[0]
+        mouse_y = mouse[1]
+        if not playing:
+            coin_flip_button.draw_button(screen)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+            if event.type == pygame.KEYDOWN and event.key == 8:
+                running = False
+
+            if event.type == pygame.MOUSEBUTTONDOWN and not playing:
+                who_goes_first = coin_flip_button.run_alg()
+                if who_goes_first is not None:
+                    playing = True
+
+                    # Player (X) goes first
+                    if who_goes_first == 1:
+                        coin_flip_button.label = "You go first"
+                        players_turn = True
+                    # Computer (O) goes first
+                    else:
+                        coin_flip_button.label = "Computer goes first"
+                        players_turn = False
+
+                    coin_flip_button.draw_button(screen)
+                    pygame.display.update()
+                    sleep(SLEEP * 200)
+                    draw_tic_tac_toe_board(screen)
+
+            elif event.type == pygame.MOUSEBUTTONDOWN and playing and players_turn:
+                print('here')
+                for i, row in enumerate(game_board_bounds):
+                    for j, slot in enumerate(row):
+                        if slot[0] < mouse_x < slot[2] and slot[1] < mouse_y < slot[3]:
+                            if game_board[i][j] is None:
+                                place_x(screen, x=(slot[2] - (slot[2]-slot[0])//2), y=(slot[3] - (slot[3]-slot[1])//2))
+                                game_board[i][j] = "X"
+                                players_turn = False
+                                print(game_board)
+                            else:
+                                break
+
+        if playing and not players_turn:
+            game_algorithms.minimax()
+
+        pygame.display.update()
+
+
+def connect_four(screen):
+    pass
+
+
+def airplane_problem(screen):
+    pass
+
+
+def box_coloring(screen):
+    pass
+
+
 def otherAlgorithmsMenu(screen):
     other_menu = Menu()
-    button_labels = ['Tic-Tac-Toe','Connect Four','Airplane Scheduler','Box Coloring']
-    button_functions = [game_algorithms.tic_tac_toe, game_algorithms.connect_four, constraint_algorithms.airplane, constraint_algorithms.coloring]
-    other_menu.create_menu(len(button_labels),button_labels,button_functions)
+    button_labels = ['Tic-Tac-Toe', 'Connect Four', 'Airplane Scheduler', 'Box Coloring']
+    button_functions = [tic_tac_toe, connect_four, airplane_problem, box_coloring]
+    other_menu.create_menu(len(button_labels), button_labels, button_functions)
+
+    other_menu.menu_buttons[0].next_menu = box_coloring
+    other_menu.menu_buttons[1].next_menu = tic_tac_toe
+    other_menu.menu_buttons[2].next_menu = connect_four
+    other_menu.menu_buttons[3].next_menu = airplane_problem
 
     running = True
     while running:
@@ -689,6 +816,7 @@ def otherAlgorithmsMenu(screen):
 
         pygame.display.update()
 
+
 def main_menu():
     pygame.init()
     icon = pygame.image.load("blur.png")
@@ -697,14 +825,14 @@ def main_menu():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
     menu = Menu()
-    button_labels = ["Pathfinding", "Spanning Trees", "Other",  "Sorting"]
-    button_functions = [pathfindingAlgorithmMenu, spanningTreeAlgorithmsMenu, otherAlgorithmsMenu, sortingAlgorithmsMenu]
+    button_labels = ["Pathfinding", "Spanning Trees", "Other", "Sorting"]
+    button_functions = [pathfindingAlgorithmMenu, spanningTreeAlgorithmsMenu, otherAlgorithmsMenu,
+                        sortingAlgorithmsMenu]
     menu.create_menu(len(button_labels), button_labels, button_functions)
     menu.menu_buttons[0].next_menu = sortingAlgorithmsMenu
     menu.menu_buttons[1].next_menu = pathfindingAlgorithmMenu
     menu.menu_buttons[2].next_menu = spanningTreeAlgorithmsMenu
     menu.menu_buttons[3].next_menu = otherAlgorithmsMenu
-
 
     running = True
     while running:
