@@ -705,14 +705,97 @@ def get_board_bounds(board):
             x += box_width
         y += box_height
         board_bounds.append(row_bounds)
-
     return board_bounds
 
 
-def place_x(screen, x, y):
-    x_text = Text(x=x, y=y, size=72, text="X", color=BLACK)
+def place_marker(screen, x, y, marker):
+    x_text = Text(x=x, y=y, size=72, text=marker, color=BLACK)
     x_text.create_text()
     x_text.draw_text(screen)
+
+def draw_winner_tic_tac_toe(screen, board, bounds):
+    # Horizontal
+    for i, row in enumerate(board):
+        if len(set(row)) == 1:
+            left_box = bounds[i][0]
+            right_box = bounds[i][2]
+
+            x1, y1 = left_box[0] + (left_box[2] - left_box[0]) // 2, left_box[1] + (left_box[3] - left_box[1]) // 2
+            x2, y2 = right_box[0] + (right_box[2] - right_box[0]) // 2, right_box[1] + (
+                        right_box[3] - right_box[1]) // 2
+
+            pygame.draw.line(screen,color=RED,start_pos=(x1,y1),end_pos=(x2,y2),width=2)
+            winner_text = Text(x = WIDTH // 2, y = HEIGHT // 2,size = 120,text = f'{row[0]} wins',color = YELLOW)
+            winner_text.create_text()
+            winner_text.draw_text(screen)
+            return
+
+    # Vertical
+    column = []
+    for i in range(len(board)):
+        for j in range(len(board[0])):
+            column.append(board[j][i])
+
+        if len(set(column)) == 1:
+            left_box = bounds[0][i]
+            right_box = bounds[2][i]
+
+            x1, y1 = left_box[0] + (left_box[2] - left_box[0]) // 2, left_box[1] + (left_box[3] - left_box[1]) // 2
+            x2, y2 = right_box[0] + (right_box[2] - right_box[0]) // 2, right_box[1] + (
+                        right_box[3] - right_box[1]) // 2
+
+            pygame.draw.line(screen, color=RED, start_pos=(x1, y1), end_pos=(x2, y2),width=2)
+
+
+            winner_text = Text(x = WIDTH // 2, y = HEIGHT // 2,size = 120,text = f'{column[0]} wins',color = YELLOW)
+            winner_text.create_text()
+            winner_text.draw_text(screen)
+            return
+
+        column = []
+
+    # Diagonal
+    top_left = [board[0][0], board[1][1], board[2][2]]
+    bottom_left = [board[2][0], board[1][1], board[0][2]]
+    if len(set(top_left)) == 1:
+
+
+        left_box = bounds[0][0]
+        right_box = bounds[2][2]
+
+        x1, y1 = left_box[0] + (left_box[2] - left_box[0]) // 2, left_box[1] + (left_box[3] - left_box[1]) // 2
+        x2, y2 = right_box[0] + (right_box[2] - right_box[0]) // 2, right_box[1] + (right_box[3] - right_box[1]) // 2
+
+
+        pygame.draw.line(screen, color=RED, start_pos=(x1, y1), end_pos=(x2, y2),width=2)
+
+        winner_text = Text(x=WIDTH // 2, y=HEIGHT // 2, size=120, text=f'{board[0][0]} wins',color = YELLOW)
+        winner_text.create_text()
+        winner_text.draw_text(screen)
+        return
+
+    elif len(set(bottom_left)) == 1:
+
+        left_box = bounds[2][0]
+        right_box = bounds[0][2]
+
+        x1, y1 = left_box[0] + (left_box[2] - left_box[0]) // 2, left_box[1] + (left_box[3] - left_box[1]) // 2
+        x2, y2 = right_box[0] + (right_box[2] - right_box[0]) // 2, right_box[1] + (right_box[3] - right_box[1]) // 2
+
+
+        pygame.draw.line(screen, color=RED, start_pos=(x1, y1), end_pos=(x2, y2),width=2)
+
+        winner_text = Text(x=WIDTH // 2, y=HEIGHT // 2, size=72, text=f'{board[2][0]} wins',color = YELLOW)
+        winner_text.create_text()
+        winner_text.draw_text(screen)
+        return
+
+    else:
+
+        winner_text = Text(x=WIDTH // 2, y=HEIGHT // 2, size=120, text="Tie",color = YELLOW)
+        winner_text.create_text()
+        winner_text.draw_text(screen)
+        return
 
 
 def tic_tac_toe(screen):
@@ -726,12 +809,14 @@ def tic_tac_toe(screen):
     running = True
     playing = False
     players_turn = False
+    computer_goes_first = None
+    new_game = True
 
     while running:
         mouse = pygame.mouse.get_pos()
         mouse_x = mouse[0]
         mouse_y = mouse[1]
-        if not playing:
+        if not playing and new_game:
             coin_flip_button.draw_button(screen)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -740,7 +825,15 @@ def tic_tac_toe(screen):
             if event.type == pygame.KEYDOWN and event.key == 8:
                 running = False
 
-            if event.type == pygame.MOUSEBUTTONDOWN and not playing:
+            if event.type == pygame.KEYDOWN and event.key == 13:
+                if new_game is False and playing is False:
+                    game_board = [[None, None, None], [None, None, None], [None, None, None]]
+                    screen.fill(AQUA)
+                    draw_tic_tac_toe_board(screen)
+                    new_game = True
+
+
+            elif event.type == pygame.MOUSEBUTTONDOWN and not playing:
                 who_goes_first = coin_flip_button.run_alg()
                 if who_goes_first is not None:
                     playing = True
@@ -749,10 +842,14 @@ def tic_tac_toe(screen):
                     if who_goes_first == 1:
                         coin_flip_button.label = "You go first"
                         players_turn = True
+                        computer_goes_first = False
                     # Computer (O) goes first
                     else:
                         coin_flip_button.label = "Computer goes first"
                         players_turn = False
+                        computer_goes_first = True
+
+
 
                     coin_flip_button.draw_button(screen)
                     pygame.display.update()
@@ -760,20 +857,43 @@ def tic_tac_toe(screen):
                     draw_tic_tac_toe_board(screen)
 
             elif event.type == pygame.MOUSEBUTTONDOWN and playing and players_turn:
-                print('here')
                 for i, row in enumerate(game_board_bounds):
                     for j, slot in enumerate(row):
                         if slot[0] < mouse_x < slot[2] and slot[1] < mouse_y < slot[3]:
                             if game_board[i][j] is None:
-                                place_x(screen, x=(slot[2] - (slot[2]-slot[0])//2), y=(slot[3] - (slot[3]-slot[1])//2))
+                                place_marker(screen, x=(slot[2] - (slot[2]-slot[0])//2), y=(slot[3] - (slot[3]-slot[1])//2),marker = "X")
                                 game_board[i][j] = "X"
                                 players_turn = False
-                                print(game_board)
-                            else:
                                 break
 
+        if playing:
+            if game_algorithms.check_winner_tic_tac_toe(game_board) is not None:
+                draw_winner_tic_tac_toe(screen, game_board, game_board_bounds)
+                playing = False
+                new_game = False
+
+
+
+        # Computer Player
         if playing and not players_turn:
-            game_algorithms.minimax()
+            # Computers move location
+            i,j = game_algorithms.get_move(game_board,computer_goes_first)
+
+            box_bounds = game_board_bounds[i][j]
+            x = box_bounds[2] - (box_bounds[2] - box_bounds[0]) // 2
+            y = box_bounds[3] - (box_bounds[3] - box_bounds[1]) // 2
+
+            place_marker(screen, x= x , y = y, marker = "O")
+            game_board[i][j] = "O"
+            players_turn = True
+
+
+        if playing:
+            if game_algorithms.check_winner_tic_tac_toe(game_board) is not None:
+                draw_winner_tic_tac_toe(screen, game_board, game_board_bounds)
+                playing = False
+                new_game = False
+
 
         pygame.display.update()
 
