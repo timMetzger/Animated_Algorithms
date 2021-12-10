@@ -866,6 +866,7 @@ def tic_tac_toe(screen):
                                 players_turn = False
                                 break
 
+        # Check for winner after players turn
         if playing:
             if game_algorithms.check_winner_tic_tac_toe(game_board) is not None:
                 draw_winner_tic_tac_toe(screen, game_board, game_board_bounds)
@@ -887,7 +888,7 @@ def tic_tac_toe(screen):
             game_board[i][j] = "O"
             players_turn = True
 
-
+        # Check for winner after computers turn
         if playing:
             if game_algorithms.check_winner_tic_tac_toe(game_board) is not None:
                 draw_winner_tic_tac_toe(screen, game_board, game_board_bounds)
@@ -897,9 +898,64 @@ def tic_tac_toe(screen):
 
         pygame.display.update()
 
+def draw_connect_four_board(screen):
+    screen.fill(AQUA)
+    x = WIDTH//7
+    y = HEIGHT//6
+    pygame.draw.line(screen,BLACK,(5,0),(5,HEIGHT),width=15)
+    pygame.draw.line(screen,BLACK,(x*7,0),(x*7,HEIGHT),width=15)
+    pygame.draw.line(screen,BLACK,(0,0),(WIDTH,0),width = 25)
+    pygame.draw.line(screen, BLACK, (0, HEIGHT), (WIDTH, HEIGHT), width=25)
+    for i in range(1,8):
+        pygame.draw.line(screen,BLACK,(x*i,0),(x*i,HEIGHT),width=10)
+
+    for j in range(1,7):
+        pygame.draw.line(screen,BLACK,(0,y*j),(WIDTH,y*j),width=10)
+
+    pygame.display.update()
+
+def draw_flashing_arrows(screen):
+    x = WIDTH//7
+    y = HEIGHT//6
+    box_width = WIDTH//7
+    for i in range(1, 8):
+        pygame.draw.line(screen, PINK, (x * i - box_width//2, 0), (x * i - box_width//2, y // 2), width=10)
+        pygame.draw.line(screen, PINK, (x * i - box_width//2, y // 2 ), (x * i - box_width//2 - 25,y // 2  - 25), width=10)
+        pygame.draw.line(screen, PINK, (x * i - box_width//2, y // 2 ), (x * i - box_width//2 + 25, y // 2  - 25), width=10)
+
+    pygame.display.update()
+
+
 
 def connect_four(screen):
-    pass
+    draw_connect_four_board(screen)
+    board = []
+    for j in range(6):
+        board.append([None]*7)
+
+    running = True
+    playing = False
+    flashing_arrows = 0
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame.KEYDOWN and event.key == 8:
+                running = False
+
+        if not playing:
+            if flashing_arrows in range(500,1500):
+                draw_flashing_arrows(screen)
+                flashing_arrows += 1
+            else:
+                flashing_arrows += 1
+                if flashing_arrows > 1499:
+                    flashing_arrows = 0
+                    draw_connect_four_board(screen)
+
+
+
+        pygame.display.update()
 
 
 def airplane_problem(screen):

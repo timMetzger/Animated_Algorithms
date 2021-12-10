@@ -1,5 +1,8 @@
 import random
 
+#TODO if i want to add more sorting algorithms i am going to need to rework the way that I am visualzing them because
+# at the moment i am just returning the list of updated height values. I will need to pass the bar object to the
+# algorithm to update the values
 def merge_sort(arr):
     print(arr)
     if len(arr) <= 1:
@@ -15,7 +18,7 @@ def merge_sort(arr):
         else:
             right.append(x)
 
-    print(left,right)
+
     left = merge_sort(left)
     right = merge_sort(right)
 

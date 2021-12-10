@@ -96,8 +96,7 @@ def connect_four():
     pass
 
 
-# board = [["X", "O",None],[None,None,None],[None,None,None]]
-#
+
 
 
 
