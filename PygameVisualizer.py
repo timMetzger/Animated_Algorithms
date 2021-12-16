@@ -615,10 +615,10 @@ def displayMST_Algorithm(screen, alg):
 
 def sortingAlgorithmsMenu(screen):
     sorting_menu = Menu()
-    button_labels = ["Quick Sort", "Heap Sort", "Bubble Sort", "Selection Sort", "Insertion Sort", "Merge Sort"]
+    button_labels = ["Quick Sort", "Heap Sort", "Bubble Sort", "Selection Sort", "Insertion Sort", "Radix Sort"]
     button_functions = [sorting_algorithms.quick_sort, sorting_algorithms.heap_sort, sorting_algorithms.bubble_sort,
                         sorting_algorithms.selection_sort, sorting_algorithms.insertion_sort,
-                        sorting_algorithms.merge_sort]
+                        sorting_algorithms.radix_sort]
     sorting_menu.create_menu(6, button_labels, button_functions, displaySortingAlgorithm)
 
     running = True
@@ -930,6 +930,7 @@ def draw_flashing_arrows(screen):
 def connect_four(screen):
     draw_connect_four_board(screen)
     board = []
+    #TODO game board box boundings and token placement
     for j in range(6):
         board.append([None]*7)
 
@@ -942,6 +943,9 @@ def connect_four(screen):
                 pygame.quit()
             if event.type == pygame.KEYDOWN and event.key == 8:
                 running = False
+            if event.type == pygame.MOUSEBUTTONDOWN and not playing:
+                pass #Todo
+
 
         if not playing:
             if flashing_arrows in range(500,1500):
