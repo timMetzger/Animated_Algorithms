@@ -949,6 +949,142 @@ def drop_token(board,bounds,players_token,color,mouse_x,screen):
 
             break
 
+
+def get_connect_four_winner(board):
+    """Return -> True - if no winner | False - if winner & who wins or None"""
+    rows = len(board)
+    cols = len(board[0])
+
+    def get_diagonals():
+        diagonal_items = []
+        ascending_diagonal = []
+        descending_diagonal = []
+        # Ascending right diagonal
+        r, c = i, j
+
+        while r > 0 and c < cols:
+            if r - 1 >= 0 and c + 1 <= cols - 1:
+                r -= 1
+                c += 1
+                ascending_diagonal.append(board[r][c])
+            else:
+                break
+
+        r, c = i, j
+        while r < rows and c > 0:
+            if r + 1 <= rows - 1 and c - 1 >= 0:
+                r += 1
+                c -= 1
+                ascending_diagonal.insert(0, board[r][c])
+            else:
+                break
+
+        diagonal_items.append(ascending_diagonal)
+
+        # Descending right diagonal
+        r, c = i, j
+        while r < rows and c < cols:
+            if r + 1 <= rows - 1 and c + 1 <= cols - 1:
+                r += 1
+                c += 1
+                descending_diagonal.append(board[r][c])
+            else:
+                break
+
+        r, c = i, j
+        while r > 0 and c > 0:
+            if r - 1 >= 0 and c - 1 >= 0:
+                r -= 1
+                c -= 1
+                descending_diagonal.insert(0, board[r][c])
+            else:
+                break
+
+        diagonal_items.append(descending_diagonal)
+
+        return diagonal_items
+
+    # Check horizontal
+    for row in board:
+        previous = None
+        count = 0
+        for item in row:
+            if previous is None and item is not None:
+                previous = item
+                count += 1
+            else:
+                if item == previous and item is not None:
+                    count += 1
+                else:
+                    count = 0
+                previous = item
+
+            if count == 4:
+                return False, item
+
+    # Check vertical
+    for j in range(cols):
+        previous = None
+        count = 0
+        for i in range(rows):
+            if previous is None and board[i][j] is not None:
+                previous = board[i][j]
+                count += 1
+            else:
+                if board[i][j] == previous and board[i][j] is not None:
+                    count += 1
+                else:
+                    count = 0
+                previous = board[i][j]
+
+            if count == 4:
+                return False, board[i][j]
+
+    # Check diagonal
+    for i in range(rows):
+        for j in range(cols):
+            neighbors = get_diagonals()
+
+            # Check diagonal 1
+            if len(neighbors[0]) >= 4:
+                previous = None
+                count = 0
+                for item in neighbors[0]:
+                    if previous is None and item is not None:
+                        previous = item
+                        count += 1
+                    else:
+                        if item == previous and item is not None:
+                            count += 1
+                        else:
+                            count = 0
+                        previous = item
+
+                    if count == 4:
+                        return False, item
+
+            if len(neighbors[1]) >= 4:
+                # Check diagonal 2
+                previous = None
+                count = 0
+                for item in neighbors[1]:
+                    if previous is None and item is not None:
+                        previous = item
+                        count += 1
+                    else:
+                        if item == previous and item is not None:
+                            count += 1
+                        else:
+                            count = 0
+                        previous = item
+
+                    if count == 4:
+                        return False, item
+
+    return True, None
+
+
+
 def connect_four(screen):
     draw_connect_four_board(screen)
     # Building game board
@@ -977,6 +1113,9 @@ def connect_four(screen):
                 playing = True
                 players_turn = False
 
+            if event.type == pygame.MOUSEBUTTONDOWN and playing and players_turn:
+                drop_token(board,game_board_bounds,"X",RED,mouse_x,screen)
+
 
 
         if players_turn:
@@ -988,6 +1127,9 @@ def connect_four(screen):
                 if flashing_arrows > 1499:
                     flashing_arrows = 0
                     draw_connect_four_board(screen)
+
+
+        playing, winner = get_connect_four_winner(board)
 
 
 
