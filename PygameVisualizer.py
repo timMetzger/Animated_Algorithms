@@ -797,7 +797,6 @@ def draw_winner_tic_tac_toe(screen, board, bounds):
         winner_text.draw_text(screen)
         return
 
-
 def tic_tac_toe(screen):
     draw_tic_tac_toe_board(screen)
 
@@ -925,29 +924,62 @@ def draw_flashing_arrows(screen):
 
     pygame.display.update()
 
+def drop_token(board,bounds,players_token,color,mouse_x,screen):
+    box_width = WIDTH // 7
+    box_height = HEIGHT // 6
+    for j, col in enumerate(bounds[0]):
+        if col[1] < mouse_x < col[0]:
+            # Drop token
+            # get_available_pos
+            for i, board_row in enumerate(reversed(board), start=-len(board) + 1, ):
+                if board_row[j] is None:
+                    print(abs(i), j)
+                    print(bounds)
+                    x = (bounds[abs(i)][j - 1][0] + box_width // 2)
+                    y = (bounds[abs(i)][j - 1][1] + box_height // 2)
+                    print(bounds[abs(i)][j - 1])
+                    print(x, y)
+                    pygame.draw.circle(screen, RED, (x, y), 50)
+                    board_row[j] = "X"
+                    playing = True
+                    players_turn = False
+                    break
+                else:
+                    continue
 
+            break
 
 def connect_four(screen):
     draw_connect_four_board(screen)
+    # Building game board
     board = []
-    #TODO game board box boundings and token placement
     for j in range(6):
         board.append([None]*7)
 
+    # Build game board bound
+    game_board_bounds = get_board_bounds(board)
+
     running = True
     playing = False
+    players_turn = True
     flashing_arrows = 0
     while running:
+        mouse = pygame.mouse.get_pos()
+        mouse_x = mouse[0]
+        mouse_y = mouse[1]
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
             if event.type == pygame.KEYDOWN and event.key == 8:
                 running = False
-            if event.type == pygame.MOUSEBUTTONDOWN and not playing:
-                pass #Todo
+            if event.type == pygame.MOUSEBUTTONDOWN and not playing and players_turn:
+                drop_token(board,game_board_bounds,"X",RED,mouse_x,screen)
+                playing = True
+                players_turn = False
 
 
-        if not playing:
+
+        if players_turn:
             if flashing_arrows in range(500,1500):
                 draw_flashing_arrows(screen)
                 flashing_arrows += 1
