@@ -1083,8 +1083,6 @@ def get_connect_four_winner(board):
 
     return True, None
 
-
-
 def connect_four(screen):
     draw_connect_four_board(screen)
     # Building game board
@@ -1128,6 +1126,8 @@ def connect_four(screen):
                     flashing_arrows = 0
                     draw_connect_four_board(screen)
 
+
+        #TODO: add computers turn and draw winner on screen
 
         playing, winner = get_connect_four_winner(board)
 
