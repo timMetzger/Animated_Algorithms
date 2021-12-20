@@ -713,6 +713,7 @@ def place_marker(screen, x, y, marker):
     x_text.create_text()
     x_text.draw_text(screen)
 
+
 def draw_winner_tic_tac_toe(screen, board, bounds):
     # Horizontal
     for i, row in enumerate(board):
@@ -722,10 +723,10 @@ def draw_winner_tic_tac_toe(screen, board, bounds):
 
             x1, y1 = left_box[0] + (left_box[2] - left_box[0]) // 2, left_box[1] + (left_box[3] - left_box[1]) // 2
             x2, y2 = right_box[0] + (right_box[2] - right_box[0]) // 2, right_box[1] + (
-                        right_box[3] - right_box[1]) // 2
+                    right_box[3] - right_box[1]) // 2
 
-            pygame.draw.line(screen,color=RED,start_pos=(x1,y1),end_pos=(x2,y2),width=2)
-            winner_text = Text(x = WIDTH // 2, y = HEIGHT // 2,size = 120,text = f'{row[0]} wins',color = YELLOW)
+            pygame.draw.line(screen, color=RED, start_pos=(x1, y1), end_pos=(x2, y2), width=2)
+            winner_text = Text(x=WIDTH // 2, y=HEIGHT // 2, size=120, text=f'{row[0]} wins', color=YELLOW)
             winner_text.create_text()
             winner_text.draw_text(screen)
             return
@@ -742,12 +743,11 @@ def draw_winner_tic_tac_toe(screen, board, bounds):
 
             x1, y1 = left_box[0] + (left_box[2] - left_box[0]) // 2, left_box[1] + (left_box[3] - left_box[1]) // 2
             x2, y2 = right_box[0] + (right_box[2] - right_box[0]) // 2, right_box[1] + (
-                        right_box[3] - right_box[1]) // 2
+                    right_box[3] - right_box[1]) // 2
 
-            pygame.draw.line(screen, color=RED, start_pos=(x1, y1), end_pos=(x2, y2),width=2)
+            pygame.draw.line(screen, color=RED, start_pos=(x1, y1), end_pos=(x2, y2), width=2)
 
-
-            winner_text = Text(x = WIDTH // 2, y = HEIGHT // 2,size = 120,text = f'{column[0]} wins',color = YELLOW)
+            winner_text = Text(x=WIDTH // 2, y=HEIGHT // 2, size=120, text=f'{column[0]} wins', color=YELLOW)
             winner_text.create_text()
             winner_text.draw_text(screen)
             return
@@ -759,17 +759,15 @@ def draw_winner_tic_tac_toe(screen, board, bounds):
     bottom_left = [board[2][0], board[1][1], board[0][2]]
     if len(set(top_left)) == 1:
 
-
         left_box = bounds[0][0]
         right_box = bounds[2][2]
 
         x1, y1 = left_box[0] + (left_box[2] - left_box[0]) // 2, left_box[1] + (left_box[3] - left_box[1]) // 2
         x2, y2 = right_box[0] + (right_box[2] - right_box[0]) // 2, right_box[1] + (right_box[3] - right_box[1]) // 2
 
+        pygame.draw.line(screen, color=RED, start_pos=(x1, y1), end_pos=(x2, y2), width=2)
 
-        pygame.draw.line(screen, color=RED, start_pos=(x1, y1), end_pos=(x2, y2),width=2)
-
-        winner_text = Text(x=WIDTH // 2, y=HEIGHT // 2, size=120, text=f'{board[0][0]} wins',color = YELLOW)
+        winner_text = Text(x=WIDTH // 2, y=HEIGHT // 2, size=120, text=f'{board[0][0]} wins', color=YELLOW)
         winner_text.create_text()
         winner_text.draw_text(screen)
         return
@@ -782,20 +780,20 @@ def draw_winner_tic_tac_toe(screen, board, bounds):
         x1, y1 = left_box[0] + (left_box[2] - left_box[0]) // 2, left_box[1] + (left_box[3] - left_box[1]) // 2
         x2, y2 = right_box[0] + (right_box[2] - right_box[0]) // 2, right_box[1] + (right_box[3] - right_box[1]) // 2
 
+        pygame.draw.line(screen, color=RED, start_pos=(x1, y1), end_pos=(x2, y2), width=2)
 
-        pygame.draw.line(screen, color=RED, start_pos=(x1, y1), end_pos=(x2, y2),width=2)
-
-        winner_text = Text(x=WIDTH // 2, y=HEIGHT // 2, size=72, text=f'{board[2][0]} wins',color = YELLOW)
+        winner_text = Text(x=WIDTH // 2, y=HEIGHT // 2, size=72, text=f'{board[2][0]} wins', color=YELLOW)
         winner_text.create_text()
         winner_text.draw_text(screen)
         return
 
     else:
 
-        winner_text = Text(x=WIDTH // 2, y=HEIGHT // 2, size=120, text="Tie",color = YELLOW)
+        winner_text = Text(x=WIDTH // 2, y=HEIGHT // 2, size=120, text="Tie", color=YELLOW)
         winner_text.create_text()
         winner_text.draw_text(screen)
         return
+
 
 def tic_tac_toe(screen):
     draw_tic_tac_toe_board(screen)
@@ -848,8 +846,6 @@ def tic_tac_toe(screen):
                         players_turn = False
                         computer_goes_first = True
 
-
-
                     coin_flip_button.draw_button(screen)
                     pygame.display.update()
                     sleep(SLEEP * 200)
@@ -860,7 +856,8 @@ def tic_tac_toe(screen):
                     for j, slot in enumerate(row):
                         if slot[0] < mouse_x < slot[2] and slot[1] < mouse_y < slot[3]:
                             if game_board[i][j] is None:
-                                place_marker(screen, x=(slot[2] - (slot[2]-slot[0])//2), y=(slot[3] - (slot[3]-slot[1])//2),marker = "X")
+                                place_marker(screen, x=(slot[2] - (slot[2] - slot[0]) // 2),
+                                             y=(slot[3] - (slot[3] - slot[1]) // 2), marker="X")
                                 game_board[i][j] = "X"
                                 players_turn = False
                                 break
@@ -872,18 +869,16 @@ def tic_tac_toe(screen):
                 playing = False
                 new_game = False
 
-
-
         # Computer Player
         if playing and not players_turn:
             # Computers move location
-            i,j = game_algorithms.get_move(game_board,computer_goes_first)
+            i, j = game_algorithms.get_move_tic_tac_toe(game_board, computer_goes_first)
 
             box_bounds = game_board_bounds[i][j]
             x = box_bounds[2] - (box_bounds[2] - box_bounds[0]) // 2
             y = box_bounds[3] - (box_bounds[3] - box_bounds[1]) // 2
 
-            place_marker(screen, x= x , y = y, marker = "O")
+            place_marker(screen, x=x, y=y, marker="O")
             game_board[i][j] = "O"
             players_turn = True
 
@@ -894,55 +889,54 @@ def tic_tac_toe(screen):
                 playing = False
                 new_game = False
 
-
         pygame.display.update()
+
 
 def draw_connect_four_board(screen):
     screen.fill(AQUA)
-    x = WIDTH//7
-    y = HEIGHT//6
-    pygame.draw.line(screen,BLACK,(5,0),(5,HEIGHT),width=15)
-    pygame.draw.line(screen,BLACK,(x*7,0),(x*7,HEIGHT),width=15)
-    pygame.draw.line(screen,BLACK,(0,0),(WIDTH,0),width = 25)
+    x = WIDTH // 7
+    y = HEIGHT // 6
+    pygame.draw.line(screen, BLACK, (5, 0), (5, HEIGHT), width=15)
+    pygame.draw.line(screen, BLACK, (x * 7, 0), (x * 7, HEIGHT), width=15)
+    pygame.draw.line(screen, BLACK, (0, 0), (WIDTH, 0), width=25)
     pygame.draw.line(screen, BLACK, (0, HEIGHT), (WIDTH, HEIGHT), width=25)
-    for i in range(1,8):
-        pygame.draw.line(screen,BLACK,(x*i,0),(x*i,HEIGHT),width=10)
+    for i in range(1, 8):
+        pygame.draw.line(screen, BLACK, (x * i, 0), (x * i, HEIGHT), width=10)
 
-    for j in range(1,7):
-        pygame.draw.line(screen,BLACK,(0,y*j),(WIDTH,y*j),width=10)
+    for j in range(1, 7):
+        pygame.draw.line(screen, BLACK, (0, y * j), (WIDTH, y * j), width=10)
 
     pygame.display.update()
+
 
 def draw_flashing_arrows(screen):
-    x = WIDTH//7
-    y = HEIGHT//6
-    box_width = WIDTH//7
+    x = WIDTH // 7
+    y = HEIGHT // 6
+    box_width = WIDTH // 7
     for i in range(1, 8):
-        pygame.draw.line(screen, PINK, (x * i - box_width//2, 0), (x * i - box_width//2, y // 2), width=10)
-        pygame.draw.line(screen, PINK, (x * i - box_width//2, y // 2 ), (x * i - box_width//2 - 25,y // 2  - 25), width=10)
-        pygame.draw.line(screen, PINK, (x * i - box_width//2, y // 2 ), (x * i - box_width//2 + 25, y // 2  - 25), width=10)
+        pygame.draw.line(screen, PINK, (x * i - box_width // 2, 0), (x * i - box_width // 2, y // 2), width=10)
+        pygame.draw.line(screen, PINK, (x * i - box_width // 2, y // 2), (x * i - box_width // 2 - 25, y // 2 - 25),
+                         width=10)
+        pygame.draw.line(screen, PINK, (x * i - box_width // 2, y // 2), (x * i - box_width // 2 + 25, y // 2 - 25),
+                         width=10)
 
     pygame.display.update()
 
-def drop_token(board,bounds,players_token,color,mouse_x,screen):
+
+def drop_token(board, bounds, mouse_x, screen):
     box_width = WIDTH // 7
     box_height = HEIGHT // 6
     for j, col in enumerate(bounds[0]):
-        if col[1] < mouse_x < col[0]:
+        if col[0] < mouse_x < col[2]:
             # Drop token
             # get_available_pos
-            for i, board_row in enumerate(reversed(board), start=-len(board) + 1, ):
+            for i, board_row in enumerate(reversed(board), start=-len(board) + 1):
                 if board_row[j] is None:
-                    print(abs(i), j)
-                    print(bounds)
-                    x = (bounds[abs(i)][j - 1][0] + box_width // 2)
-                    y = (bounds[abs(i)][j - 1][1] + box_height // 2)
-                    print(bounds[abs(i)][j - 1])
-                    print(x, y)
+                    x = (bounds[abs(i)][j][0] + box_width // 2)
+                    y = (bounds[abs(i)][j][1] + box_height // 2)
                     pygame.draw.circle(screen, RED, (x, y), 50)
                     board_row[j] = "X"
-                    playing = True
-                    players_turn = False
+                    pygame.display.update()
                     break
                 else:
                     continue
@@ -950,145 +944,19 @@ def drop_token(board,bounds,players_token,color,mouse_x,screen):
             break
 
 
-def get_connect_four_winner(board):
-    """Return -> True - if no winner | False - if winner & who wins or None"""
-    rows = len(board)
-    cols = len(board[0])
 
-    def get_diagonals():
-        diagonal_items = []
-        ascending_diagonal = []
-        descending_diagonal = []
-        # Ascending right diagonal
-        r, c = i, j
 
-        while r > 0 and c < cols:
-            if r - 1 >= 0 and c + 1 <= cols - 1:
-                r -= 1
-                c += 1
-                ascending_diagonal.append(board[r][c])
-            else:
-                break
-
-        r, c = i, j
-        while r < rows and c > 0:
-            if r + 1 <= rows - 1 and c - 1 >= 0:
-                r += 1
-                c -= 1
-                ascending_diagonal.insert(0, board[r][c])
-            else:
-                break
-
-        diagonal_items.append(ascending_diagonal)
-
-        # Descending right diagonal
-        r, c = i, j
-        while r < rows and c < cols:
-            if r + 1 <= rows - 1 and c + 1 <= cols - 1:
-                r += 1
-                c += 1
-                descending_diagonal.append(board[r][c])
-            else:
-                break
-
-        r, c = i, j
-        while r > 0 and c > 0:
-            if r - 1 >= 0 and c - 1 >= 0:
-                r -= 1
-                c -= 1
-                descending_diagonal.insert(0, board[r][c])
-            else:
-                break
-
-        diagonal_items.append(descending_diagonal)
-
-        return diagonal_items
-
-    # Check horizontal
-    for row in board:
-        previous = None
-        count = 0
-        for item in row:
-            if previous is None and item is not None:
-                previous = item
-                count += 1
-            else:
-                if item == previous and item is not None:
-                    count += 1
-                else:
-                    count = 0
-                previous = item
-
-            if count == 4:
-                return False, item
-
-    # Check vertical
-    for j in range(cols):
-        previous = None
-        count = 0
-        for i in range(rows):
-            if previous is None and board[i][j] is not None:
-                previous = board[i][j]
-                count += 1
-            else:
-                if board[i][j] == previous and board[i][j] is not None:
-                    count += 1
-                else:
-                    count = 0
-                previous = board[i][j]
-
-            if count == 4:
-                return False, board[i][j]
-
-    # Check diagonal
-    for i in range(rows):
-        for j in range(cols):
-            neighbors = get_diagonals()
-
-            # Check diagonal 1
-            if len(neighbors[0]) >= 4:
-                previous = None
-                count = 0
-                for item in neighbors[0]:
-                    if previous is None and item is not None:
-                        previous = item
-                        count += 1
-                    else:
-                        if item == previous and item is not None:
-                            count += 1
-                        else:
-                            count = 0
-                        previous = item
-
-                    if count == 4:
-                        return False, item
-
-            if len(neighbors[1]) >= 4:
-                # Check diagonal 2
-                previous = None
-                count = 0
-                for item in neighbors[1]:
-                    if previous is None and item is not None:
-                        previous = item
-                        count += 1
-                    else:
-                        if item == previous and item is not None:
-                            count += 1
-                        else:
-                            count = 0
-                        previous = item
-
-                    if count == 4:
-                        return False, item
-
-    return True, None
 
 def connect_four(screen):
+    box_width = WIDTH // 7
+    box_height = HEIGHT // 6
+
     draw_connect_four_board(screen)
     # Building game board
     board = []
     for j in range(6):
-        board.append([None]*7)
+        board.append([None] * 7)
+
 
     # Build game board bound
     game_board_bounds = get_board_bounds(board)
@@ -1096,6 +964,8 @@ def connect_four(screen):
     running = True
     playing = False
     players_turn = True
+    game_over = False
+    player_just_went = False
     flashing_arrows = 0
     while running:
         mouse = pygame.mouse.get_pos()
@@ -1107,17 +977,16 @@ def connect_four(screen):
             if event.type == pygame.KEYDOWN and event.key == 8:
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN and not playing and players_turn:
-                drop_token(board,game_board_bounds,"X",RED,mouse_x,screen)
+                drop_token(board, game_board_bounds, mouse_x, screen)
                 playing = True
                 players_turn = False
 
-            if event.type == pygame.MOUSEBUTTONDOWN and playing and players_turn:
-                drop_token(board,game_board_bounds,"X",RED,mouse_x,screen)
+            elif event.type == pygame.MOUSEBUTTONDOWN and playing and players_turn:
+                drop_token(board, game_board_bounds, mouse_x, screen)
+                players_turn = False
 
-
-
-        if players_turn:
-            if flashing_arrows in range(500,1500):
+        if not playing and not game_over:
+            if flashing_arrows in range(500, 1500):
                 draw_flashing_arrows(screen)
                 flashing_arrows += 1
             else:
@@ -1126,12 +995,21 @@ def connect_four(screen):
                     flashing_arrows = 0
                     draw_connect_four_board(screen)
 
+        if not players_turn and playing:
+            i, j = (game_algorithms.get_move_connect_four(board,True))
+            board[i][j] = 'O'
+            x = (game_board_bounds[abs(i)][j][0] + box_width // 2)
+            y = (game_board_bounds[abs(i)][j][1] + box_height // 2)
+            pygame.draw.circle(screen, AQUATIC_GREEN, (x, y), 50)
 
-        #TODO: add computers turn and draw winner on screen
+            players_turn = True
 
-        playing, winner = get_connect_four_winner(board)
+        # TODO: add computers turn and draw winner on screen
 
-
+        if playing:
+            playing, winner = game_algorithms.get_connect_four_winner(board)
+            if not playing:
+                game_over = True
 
         pygame.display.update()
 
