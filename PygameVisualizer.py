@@ -995,6 +995,20 @@ def connect_four(screen):
                     flashing_arrows = 0
                     draw_connect_four_board(screen)
 
+        if playing:
+            playing, winner = game_algorithms.get_connect_four_winner(board)
+            print(winner)
+            if not playing:
+                game_over = True
+                message = ""
+                if winner == 'X':
+                    message = 'Player wins'
+                else:
+                    message = 'Computer wins'
+                winner_text = Text(WIDTH//2,HEIGHT//2,72,message,YELLOW)
+                winner_text.create_text()
+                winner_text.draw_text(screen)
+
         if not players_turn and playing:
             i, j = (game_algorithms.get_move_connect_four(board,True))
             board[i][j] = 'O'
@@ -1008,8 +1022,17 @@ def connect_four(screen):
 
         if playing:
             playing, winner = game_algorithms.get_connect_four_winner(board)
+            print(winner)
             if not playing:
                 game_over = True
+                message = ""
+                if winner == 'X':
+                    message = 'Player wins'
+                else:
+                    message = 'Computer wins'
+                winner_text = Text(WIDTH//2,HEIGHT//2,72,message,YELLOW)
+                winner_text.create_text()
+                winner_text.draw_text(screen)
 
         pygame.display.update()
 

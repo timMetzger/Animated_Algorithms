@@ -1,5 +1,3 @@
-
-
 def get_move_tic_tac_toe(board, who_went_first):
     """Board : game board
        who_went_first : to determine if maximizing or minimizing player
@@ -78,7 +76,7 @@ def get_connect_four_winner(board):
     for j in range(cols):
         previous = None
         count = 0
-        for i in range(rows):
+        for i in range(rows-1,-1,-1):
             if previous is None and board[i][j] is not None:
                 previous = board[i][j]
                 count += 1
@@ -230,7 +228,7 @@ def score_board_connect_four(board):
         previous = None
         player_col_score = 0
         computer_col_score = 0
-        for i in range(rows):
+        for i in range(rows-1,-1,-1):
             if previous is None and board[i][j] is not None:
                 previous = board[i][j]
                 if board[i][j] == "X":
@@ -322,6 +320,7 @@ def score_board_connect_four(board):
 
             if computer_diagonal_score > max_computer_diagonal:
                 max_computer_diagonal = computer_diagonal_score
+
 
     player_score = max_player_diagonal * max_player_vertical * max_player_horizontal
     computer_score = max_computer_diagonal * max_computer_vertical * max_computer_horizontal
