@@ -1,6 +1,6 @@
 from pathfinding_algorithms import minimum_distance
 
-def boruvkas():
+def boruvkas(graph):
     pass
 
 def prims(graph):

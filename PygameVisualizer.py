@@ -944,9 +944,6 @@ def drop_token(board, bounds, mouse_x, screen):
             break
 
 
-
-
-
 def connect_four(screen):
     box_width = WIDTH // 7
     box_height = HEIGHT // 6
@@ -965,7 +962,6 @@ def connect_four(screen):
     playing = False
     players_turn = True
     game_over = False
-    player_just_went = False
     flashing_arrows = 0
     while running:
         mouse = pygame.mouse.get_pos()
@@ -980,6 +976,15 @@ def connect_four(screen):
                 drop_token(board, game_board_bounds, mouse_x, screen)
                 playing = True
                 players_turn = False
+
+            if event.type == pygame.KEYDOWN and event.key == 13 and game_over:
+                board = []
+                for j in range(6):
+                    board.append([None] * 7)
+                playing = False
+                players_turn = True
+                game_over = False
+                draw_connect_four_board(screen)
 
             elif event.type == pygame.MOUSEBUTTONDOWN and playing and players_turn:
                 drop_token(board, game_board_bounds, mouse_x, screen)
@@ -997,7 +1002,6 @@ def connect_four(screen):
 
         if playing:
             playing, winner = game_algorithms.get_connect_four_winner(board)
-            print(winner)
             if not playing:
                 game_over = True
                 message = ""
@@ -1010,7 +1014,7 @@ def connect_four(screen):
                 winner_text.draw_text(screen)
 
         if not players_turn and playing:
-            i, j = (game_algorithms.get_move_connect_four(board,True))
+            i, j = (game_algorithms.get_move_connect_four(board,False))
             board[i][j] = 'O'
             x = (game_board_bounds[abs(i)][j][0] + box_width // 2)
             y = (game_board_bounds[abs(i)][j][1] + box_height // 2)
@@ -1018,11 +1022,9 @@ def connect_four(screen):
 
             players_turn = True
 
-        # TODO: add computers turn and draw winner on screen
 
         if playing:
             playing, winner = game_algorithms.get_connect_four_winner(board)
-            print(winner)
             if not playing:
                 game_over = True
                 message = ""

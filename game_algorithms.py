@@ -66,7 +66,10 @@ def get_connect_four_winner(board):
                 if item == previous and item is not None:
                     count += 1
                 else:
-                    count = 0
+                    if previous is not None:
+                        count = 1
+                    else:
+                        count = 0
                 previous = item
 
             if count == 4:
@@ -84,7 +87,10 @@ def get_connect_four_winner(board):
                 if board[i][j] == previous and board[i][j] is not None:
                     count += 1
                 else:
-                    count = 0
+                    if previous is not None:
+                        count = 1
+                    else:
+                        count = 0
                 previous = board[i][j]
 
             if count == 4:
@@ -107,7 +113,10 @@ def get_connect_four_winner(board):
                         if item == previous and item is not None:
                             count += 1
                         else:
-                            count = 0
+                            if previous is not None:
+                                count = 1
+                            else:
+                                count = 0
                         previous = item
 
                     if count == 4:
@@ -125,7 +134,10 @@ def get_connect_four_winner(board):
                         if item == previous and item is not None:
                             count += 1
                         else:
-                            count = 0
+                            if previous is not None:
+                                count = 1
+                            else:
+                                count = 0
                         previous = item
 
                     if count == 4:
@@ -184,162 +196,118 @@ def get_diagonals(rows, cols, board, i, j):
     return diagonal_items
 
 
-def score_board_connect_four(board):
+def score_board_connect_four(board,token):
     rows = len(board)
     cols = len(board[0])
 
+    score = 0
     # Check horizontal
-    max_player_horizontal = 0
-    max_computer_horizontal = 0
+
     for row in board:
         previous = None
-        player_row_score = 0
-        computer_row_score = 0
+
+        row_score = 0
         for item in row:
             if previous is None and item is not None:
                 previous = item
-                if item == 'X':
-                    player_row_score += 1
-                else:
-                    computer_row_score += 1
+                if item == token:
+                    row_score += 1
             else:
                 if item == previous and item is not None:
-                    if item == 'X':
-                        player_row_score += 1
-                    else:
-                        computer_row_score += 1
+                    if item == token:
+                        row_score += 1
+                elif item != previous:
+                    if item == token:
+                        row_score = 0
                 else:
-                    if item == 'X':
-                        player_row_score = 0
-                    else:
-                        computer_row_score = 0
+                    score += row_score
+
             previous = item
 
-        if player_row_score > max_player_horizontal:
-            max_player_horizontal = player_row_score
-
-        if computer_row_score > max_computer_horizontal:
-            max_computer_horizontal = computer_row_score
 
     # Check vertical
-    max_player_vertical = 0
-    max_computer_vertical = 0
     for j in range(cols):
         previous = None
-        player_col_score = 0
-        computer_col_score = 0
+        col_score = 0
         for i in range(rows-1,-1,-1):
             if previous is None and board[i][j] is not None:
                 previous = board[i][j]
-                if board[i][j] == "X":
-                    player_col_score += 1
-                else:
-                    computer_col_score += 1
+                if board[i][j] == token:
+                    col_score += 1
+
             else:
                 if board[i][j] == previous and board[i][j] is not None:
-                    if board[i][j] == 'X':
-                        player_col_score += 1
-                    else:
-                        computer_col_score += 1
+                    if board[i][j] == token:
+                        col_score += 1
+                elif board[i][j] != previous:
+                    if board[i][j] == token:
+                        col_score = 0
                 else:
-                    if board[i][j] == 'X':
-                        player_col_score = 0
-                    else:
-                        computer_col_score = 0
+                    score += col_score
+
                 previous = board[i][j]
 
-        if player_col_score > max_player_vertical:
-            max_player_vertical = player_col_score
 
-        if computer_col_score > max_computer_vertical:
-            max_computer_vertical = computer_col_score
 
     # Check diagonal
-    max_player_diagonal = 0
-    max_computer_diagonal = 0
     for i in range(rows):
         for j in range(cols):
             neighbors = get_diagonals(rows, cols, board, i, j)
-            player_diagonal_score = 0
-            computer_diagonal_score = 0
+            diagonal_score = 0
             previous = None
 
             # Check diagonal 1
             for item in neighbors[0]:
                 if previous is None and item is not None:
                     previous = item
-                    if item == 'X':
-                        player_diagonal_score += 1
-                    else:
-                        computer_diagonal_score += 1
+                    if item == token:
+                        diagonal_score += 1
                 else:
                     if item == previous and item is not None:
-                        if item == 'X':
-                            player_diagonal_score += 1
-                        else:
-                            computer_diagonal_score += 1
+                        if item == token:
+                            diagonal_score += 1
+                    elif item != previous:
+                        if item == token:
+                            diagonal_score += 1
                     else:
-                        if item == 'X':
-                            player_diagonal_score = 0
-                        else:
-                            computer_diagonal_score = 0
+                        score += diagonal_score
                     previous = item
 
-                if player_diagonal_score > max_player_diagonal:
-                    max_player_diagonal = player_diagonal_score
 
-                if computer_diagonal_score > max_computer_diagonal:
-                    max_computer_diagonal = computer_diagonal_score
 
                 # Check diagonal 2
-                player_diagonal_score = 0
-                computer_diagonal_score = 0
-                previous = None
-
+            diagonal_score = 0
+            previous = None
+            for item in neighbors[1]:
                 if previous is None and item is not None:
                     previous = item
-                    if item == 'X':
-                        player_diagonal_score += 1
-                    else:
-                        computer_diagonal_score += 1
+                    if item == token:
+                        diagonal_score += 1
                 else:
                     if item == previous and item is not None:
-                        if item == 'X':
-                            player_diagonal_score += 1
-                        else:
-                            computer_diagonal_score += 1
+                        if item == token:
+                            diagonal_score += 1
+                    elif item != previous:
+                        if item == token:
+                            diagonal_score += 1
                     else:
-                        if item == 'X':
-                            player_diagonal_score = 0
-                        else:
-                            computer_diagonal_score = 0
+                        score += diagonal_score
                     previous = item
 
-            if player_diagonal_score > max_player_diagonal:
-                max_player_diagonal = player_diagonal_score
-
-            if computer_diagonal_score > max_computer_diagonal:
-                max_computer_diagonal = computer_diagonal_score
-
-
-    player_score = max_player_diagonal * max_player_vertical * max_player_horizontal
-    computer_score = max_computer_diagonal * max_computer_vertical * max_computer_horizontal
-    return (player_score, computer_score)
+    return score
 
 
 def minimax_alpha_beta(board, depth, player, alpha, beta):
-    board_scores = {
-        'O': 10,
-        'X': -10,
-    }
+
 
     moves = get_available_moves_connect_four(board)
 
     _, winner = get_connect_four_winner(board)
-    player_score, computer_score = score_board_connect_four(board)
+    player_score, computer_score = score_board_connect_four(board, "X"), score_board_connect_four(board, "O")
 
     if winner is not None:
-        return board_scores[winner] * computer_score if player else board_scores[winner] * computer_score
+        print(winner,computer_score,-player_score,player)
+        return 10 * computer_score if player else -10 * player_score
 
     elif winner is None and depth > 3:
         return computer_score if player else -player_score
