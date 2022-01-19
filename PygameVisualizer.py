@@ -637,7 +637,8 @@ def sortingAlgorithmsMenu(screen):
         sleep(SLEEP)
         pygame.display.update()
 
-
+#TODO add instructions for keyboard commands
+#TODO q - add weight | w - make maze | e - weighted maze
 def pathfindingAlgorithmMenu(screen):
     pathfinding_menu = Menu()
     button_labels = ["A-Star", "Breadth First", "Depth First", "Dijkstra"]
