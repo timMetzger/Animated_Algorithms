@@ -6,7 +6,7 @@ Currently this project has animated algorithms for sorting, pathfinding, spannin
 ![python_HpXKxGTPHV](https://user-images.githubusercontent.com/37784441/182253748-8f7843fe-42a8-4d7a-8c03-65d3e4f8de91.gif)
 
 
-For these sorting algorithms I took inspirations from the famous animated sorting algorithm videos with sound and made my own along with a timer for comparison. The following are currently implemented.
+For these sorting algorithms I took inspirations from the famous animated sorting algorithm videos with sound and made my own along with a timer for comparison. The following are currently implemented. Unfoutanely, gifs don't have sound but feel free to download and try it out. 
 
 Radix Sort
 
